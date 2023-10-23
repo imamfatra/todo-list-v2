@@ -1,0 +1,281 @@
+openapi: '3.0.2'
+info:
+  title: Todos RESTful API
+  version: '1.0'
+servers:
+  - url: http://localhost:8080
+paths:
+  /todos: 
+    get: 
+      tags:
+        - "Todos"
+      description: Get all todos
+      summary: Get all todos
+      responses:
+        200:
+          description: Success get all todos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  todos:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        todo:
+                          type: string
+                        completed:
+                          type: boolean
+                        userId:
+                          type: integer
+                  total:
+                    type: number
+
+                # 30 items ...
+                example:
+                  todos:
+                    - id: 1
+                      todo: "learning java-collection"
+                      completed: false
+                      userId: 45
+                  total: 30
+
+    post:
+      tags:
+        - "Todos"
+      description: Add a new todo
+      summary: Add a new todo
+      requestBody:
+        content:
+          application/json:
+            schema:
+             type: object
+             properties:
+              todo:
+                type: string
+              completed:
+                type: boolean
+              userId:
+                type: integer
+            example:
+              todo: go to supermarket
+              completed: false
+              userId: 22
+      responses:
+        200:
+          description: Success add new a todo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/schemaTodo2"
+                  
+
+  /todos/{id}:
+    get:
+      tags:
+        - "Todos"
+      description: Get single a todos
+      summary: Get single a todos
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: id todos
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Success get todos by id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/schemaTodo"
+  
+    put:
+      tags:
+        - "Todos"
+      description: Update status completed
+      summary: Update status complated
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: id todos
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                complated:
+                  type: boolean
+              example:
+                complated: true
+      responses:
+        200:
+          description: Success update status complated
+          content:
+            application/json:
+              schema:
+                  $ref: "#/components/schemas/schemaTodo"
+        
+    delete:
+      tags:
+        - "Todos"
+      description: Delete a todo with id
+      summary: Delete a todo
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: id todos
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Success delete a todo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  todo:
+                    type: string
+                  complated:
+                    type: boolean
+                  userId:
+                    type: 
+                      integer
+                  isDelete:
+                    type: boolean
+                  deletedOn: 
+                    type: string
+                example:
+                  id: 5
+                  todo: explore about java oop
+                  complated: false
+                  userId: 3
+                  isDelete: true
+                  deletedOn: /* time now */
+        
+  /todos/random:
+    get:
+      tags:
+        - "Todos"
+      description: Get random a todos
+      summary: Get random a todos
+      responses:
+        200:
+          description: Succes get random a todos
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/schemaTodo2"
+                
+  /todos/?limit={numLimit}&skip={numSkip}:
+    get:
+      tags:
+        - "Todos"
+      description: Get some todos 
+      summary: Get some todos with filter (limit & skip)
+      parameters:
+        - name: numLimit
+          in: path
+          required: true
+          description: number of limit
+          schema:
+            type: integer
+        - name: numSkip
+          in: path
+          required: true
+          description: number of skip
+          schema:
+            type: integer
+
+      responses:
+        200:
+          description: Success get todos with filter
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  todos:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        todo:
+                          type: string
+                        completed:
+                          type: boolean
+                        userId:
+                          type: integer
+                  total:
+                    type: number
+                  skip:
+                    type: number
+                  limit:
+                    type: number
+                # 30 items ...
+                example:
+                  todos:
+                    - id: 6
+                      todos: "meditation"
+                      completed: false
+                      userId: 45
+                    - id: 7
+                      todos: "read a book"
+                      completed: false
+                      userId: 45
+                  total: 30
+                  skip: 5
+                  limit: 2
+        
+
+components:
+  schemas:
+    schemaTodo:
+      type: object
+      properties:
+        id:
+          type: integer
+        todo:
+          type: string
+        completed:
+          type: boolean
+        userId:
+          type: integer
+      example:
+        id: 4
+        todo: "clean the bed room"
+        completed: true
+        userId: 11
+    
+    schemaTodo2:
+      type: object
+      properties:
+        id:
+          type: integer
+        todos:
+          type: string
+        completed:
+          type: boolean
+        userId:
+          type: integer
+      example:
+        id: 14
+        todos: "go to supermarket"
+        completed: false
+        userId: 22
+
