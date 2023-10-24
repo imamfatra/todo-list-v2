@@ -52,31 +52,6 @@ func (q *Queries) CountAllTodos(ctx context.Context, userid int32) (int64, error
 	return count, err
 }
 
-const countSomeTodos = `-- name: CountSomeTodos :one
-SELECT total
-FROM (
-    SELECT COUNT(ID) AS total
-    FROM todos
-    WHERE userid = $1 AND isdelete = FALSE
-    ORDER BY id
-    LIMIT $2
-    OFFSET $3
-) AS count_todos
-`
-
-type CountSomeTodosParams struct {
-	Userid int32 `json:"userid"`
-	Limit  int32 `json:"limit"`
-	Offset int32 `json:"offset"`
-}
-
-func (q *Queries) CountSomeTodos(ctx context.Context, arg CountSomeTodosParams) (int64, error) {
-	row := q.db.QueryRowContext(ctx, countSomeTodos, arg.Userid, arg.Limit, arg.Offset)
-	var total int64
-	err := row.Scan(&total)
-	return total, err
-}
-
 const deleteaTodo = `-- name: DeleteaTodo :one
 UPDATE todos
 SET 
@@ -145,6 +120,7 @@ func (q *Queries) GetAllTodos(ctx context.Context, userid int32) ([]Todo, error)
 const getRandomaTodo = `-- name: GetRandomaTodo :one
 SELECT id, todo, complated, userid, isdelete, deletedon 
 FROM todos
+WHERE isdelete = FALSE
 ORDER BY RANDOM()
 LIMIT 1
 `

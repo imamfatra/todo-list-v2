@@ -1,0 +1,31 @@
+SELECT * FROM todos;
+
+SELECT * FROM todos limit 5;
+
+SELECT COUNT(*)
+FROM todos
+WHERE userid = 21 AND isdelete = FALSE
+LIMIT 5
+OFFSET 5;
+
+SELECT total
+FROM (
+    SELECT COUNT(ID) AS total
+    FROM todos
+    WHERE userid = 21 AND isdelete = FALSE
+    LIMIT 5
+    OFFSET 213
+) AS count_todos;
+
+SELECT * 
+FROM todos
+WHERE isdelete = FALSE
+ORDER BY RANDOM()
+LIMIT 1;
+
+SELECT *
+FROM todos
+WHERE userid = 27 AND isdelete = FALSE
+ORDER BY id
+LIMIT 5
+OFFSET 5

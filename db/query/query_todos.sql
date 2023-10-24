@@ -42,6 +42,7 @@ RETURNING *;
 -- name: GetRandomaTodo :one
 SELECT * 
 FROM todos
+WHERE isdelete = FALSE
 ORDER BY RANDOM()
 LIMIT 1;
 
@@ -52,14 +53,3 @@ WHERE userid = $1 AND isdelete = FALSE
 ORDER BY id
 LIMIT $2
 OFFSET $3;
-
--- name: CountSomeTodos :one
-SELECT total
-FROM (
-    SELECT COUNT(ID) AS total
-    FROM todos
-    WHERE userid = $1 AND isdelete = FALSE
-    ORDER BY id
-    LIMIT $2
-    OFFSET $3
-) AS count_todos;

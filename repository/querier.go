@@ -11,7 +11,6 @@ import (
 type Querier interface {
 	AddaNewTodo(ctx context.Context, arg AddaNewTodoParams) (Todo, error)
 	CountAllTodos(ctx context.Context, userid int32) (int64, error)
-	CountSomeTodos(ctx context.Context, arg CountSomeTodosParams) (int64, error)
 	CreateAccount(ctx context.Context, arg CreateAccountParams) (User, error)
 	DeleteaTodo(ctx context.Context, arg DeleteaTodoParams) (Todo, error)
 	GetAccount(ctx context.Context, userid int32) (User, error)
