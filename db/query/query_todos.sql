@@ -1,5 +1,5 @@
 -- name: GetAllTodos :many
-SELECT * 
+SELECT id, todo, complated, userid
 FROM todos
 WHERE userid = $1 AND isdelete = FALSE
 ORDER BY id;
@@ -16,10 +16,10 @@ INSERT INTO todos (
     userid
 ) VALUES (
     $1, $2, $3
-) RETURNING *;
+) RETURNING id, todo, complated, userid;
 
 -- name: GetSingleaTodos :one
-SELECT *
+SELECT id, todo, complated, userid
 FROM todos
 WHERE userid = $1 AND id = $2 AND isdelete = FALSE;
 
@@ -29,7 +29,7 @@ SET
     id = $1,
     complated = $2
 WHERE userid = $3 AND isdelete = FALSE
-RETURNING *;
+RETURNING id, todo, complated, userid;
 
 -- name: DeleteaTodo :one
 UPDATE todos
@@ -40,14 +40,14 @@ WHERE userid = $2
 RETURNING *;
 
 -- name: GetRandomaTodo :one
-SELECT * 
+SELECT id, todo, complated, userid 
 FROM todos
 WHERE isdelete = FALSE
 ORDER BY RANDOM()
 LIMIT 1;
 
 -- name: GetSomeTodos :many
-SELECT *
+SELECT id, todo, complated, userid
 FROM todos
 WHERE userid = $1 AND isdelete = FALSE
 ORDER BY id

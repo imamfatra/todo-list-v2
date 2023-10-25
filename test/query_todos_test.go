@@ -37,8 +37,6 @@ func addOneTodo(t *testing.T) (int32, int32) {
 	require.Equal(t, todo.Todo, arg.Todo)
 	require.Equal(t, todo.Complated, arg.Complated)
 	require.Equal(t, todo.Userid, user.Userid)
-	require.False(t, todo.Isdelete)
-	require.Empty(t, todo.Deletedon)
 
 	return user.Userid, todo.ID
 }
@@ -110,8 +108,6 @@ func TestGetSingleTodo(t *testing.T) {
 	require.False(t, todo.Complated)
 	require.Equal(t, todo.Userid, userid)
 	require.Equal(t, todo.ID, id)
-	require.False(t, todo.Isdelete)
-	require.Empty(t, todo.Deletedon)
 }
 
 func TestDeleteTodo(t *testing.T) {
@@ -190,6 +186,4 @@ func TestUpdateStatusComplate(t *testing.T) {
 	require.True(t, todo.Complated)
 	require.Equal(t, todo.ID, id)
 	require.Equal(t, todo.Userid, userid)
-	require.False(t, todo.Isdelete)
-	require.Empty(t, todo.Deletedon)
 }

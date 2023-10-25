@@ -16,7 +16,7 @@ INSERT INTO todos (
     userid
 ) VALUES (
     $1, $2, $3
-) RETURNING id, todo, complated, userid, isdelete, deletedon
+) RETURNING id, todo, complated, userid
 `
 
 type AddaNewTodoParams struct {
@@ -25,16 +25,21 @@ type AddaNewTodoParams struct {
 	Userid    int32  `json:"userid"`
 }
 
-func (q *Queries) AddaNewTodo(ctx context.Context, arg AddaNewTodoParams) (Todo, error) {
+type AddaNewTodoRow struct {
+	ID        int32  `json:"id"`
+	Todo      string `json:"todo"`
+	Complated bool   `json:"complated"`
+	Userid    int32  `json:"userid"`
+}
+
+func (q *Queries) AddaNewTodo(ctx context.Context, arg AddaNewTodoParams) (AddaNewTodoRow, error) {
 	row := q.db.QueryRowContext(ctx, addaNewTodo, arg.Todo, arg.Complated, arg.Userid)
-	var i Todo
+	var i AddaNewTodoRow
 	err := row.Scan(
 		&i.ID,
 		&i.Todo,
 		&i.Complated,
 		&i.Userid,
-		&i.Isdelete,
-		&i.Deletedon,
 	)
 	return i, err
 }
@@ -81,28 +86,33 @@ func (q *Queries) DeleteaTodo(ctx context.Context, arg DeleteaTodoParams) (Todo,
 }
 
 const getAllTodos = `-- name: GetAllTodos :many
-SELECT id, todo, complated, userid, isdelete, deletedon 
+SELECT id, todo, complated, userid
 FROM todos
 WHERE userid = $1 AND isdelete = FALSE
 ORDER BY id
 `
 
-func (q *Queries) GetAllTodos(ctx context.Context, userid int32) ([]Todo, error) {
+type GetAllTodosRow struct {
+	ID        int32  `json:"id"`
+	Todo      string `json:"todo"`
+	Complated bool   `json:"complated"`
+	Userid    int32  `json:"userid"`
+}
+
+func (q *Queries) GetAllTodos(ctx context.Context, userid int32) ([]GetAllTodosRow, error) {
 	rows, err := q.db.QueryContext(ctx, getAllTodos, userid)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Todo
+	var items []GetAllTodosRow
 	for rows.Next() {
-		var i Todo
+		var i GetAllTodosRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Todo,
 			&i.Complated,
 			&i.Userid,
-			&i.Isdelete,
-			&i.Deletedon,
 		); err != nil {
 			return nil, err
 		}
@@ -118,29 +128,34 @@ func (q *Queries) GetAllTodos(ctx context.Context, userid int32) ([]Todo, error)
 }
 
 const getRandomaTodo = `-- name: GetRandomaTodo :one
-SELECT id, todo, complated, userid, isdelete, deletedon 
+SELECT id, todo, complated, userid 
 FROM todos
 WHERE isdelete = FALSE
 ORDER BY RANDOM()
 LIMIT 1
 `
 
-func (q *Queries) GetRandomaTodo(ctx context.Context) (Todo, error) {
+type GetRandomaTodoRow struct {
+	ID        int32  `json:"id"`
+	Todo      string `json:"todo"`
+	Complated bool   `json:"complated"`
+	Userid    int32  `json:"userid"`
+}
+
+func (q *Queries) GetRandomaTodo(ctx context.Context) (GetRandomaTodoRow, error) {
 	row := q.db.QueryRowContext(ctx, getRandomaTodo)
-	var i Todo
+	var i GetRandomaTodoRow
 	err := row.Scan(
 		&i.ID,
 		&i.Todo,
 		&i.Complated,
 		&i.Userid,
-		&i.Isdelete,
-		&i.Deletedon,
 	)
 	return i, err
 }
 
 const getSingleaTodos = `-- name: GetSingleaTodos :one
-SELECT id, todo, complated, userid, isdelete, deletedon
+SELECT id, todo, complated, userid
 FROM todos
 WHERE userid = $1 AND id = $2 AND isdelete = FALSE
 `
@@ -150,22 +165,27 @@ type GetSingleaTodosParams struct {
 	ID     int32 `json:"id"`
 }
 
-func (q *Queries) GetSingleaTodos(ctx context.Context, arg GetSingleaTodosParams) (Todo, error) {
+type GetSingleaTodosRow struct {
+	ID        int32  `json:"id"`
+	Todo      string `json:"todo"`
+	Complated bool   `json:"complated"`
+	Userid    int32  `json:"userid"`
+}
+
+func (q *Queries) GetSingleaTodos(ctx context.Context, arg GetSingleaTodosParams) (GetSingleaTodosRow, error) {
 	row := q.db.QueryRowContext(ctx, getSingleaTodos, arg.Userid, arg.ID)
-	var i Todo
+	var i GetSingleaTodosRow
 	err := row.Scan(
 		&i.ID,
 		&i.Todo,
 		&i.Complated,
 		&i.Userid,
-		&i.Isdelete,
-		&i.Deletedon,
 	)
 	return i, err
 }
 
 const getSomeTodos = `-- name: GetSomeTodos :many
-SELECT id, todo, complated, userid, isdelete, deletedon
+SELECT id, todo, complated, userid
 FROM todos
 WHERE userid = $1 AND isdelete = FALSE
 ORDER BY id
@@ -179,22 +199,27 @@ type GetSomeTodosParams struct {
 	Offset int32 `json:"offset"`
 }
 
-func (q *Queries) GetSomeTodos(ctx context.Context, arg GetSomeTodosParams) ([]Todo, error) {
+type GetSomeTodosRow struct {
+	ID        int32  `json:"id"`
+	Todo      string `json:"todo"`
+	Complated bool   `json:"complated"`
+	Userid    int32  `json:"userid"`
+}
+
+func (q *Queries) GetSomeTodos(ctx context.Context, arg GetSomeTodosParams) ([]GetSomeTodosRow, error) {
 	rows, err := q.db.QueryContext(ctx, getSomeTodos, arg.Userid, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Todo
+	var items []GetSomeTodosRow
 	for rows.Next() {
-		var i Todo
+		var i GetSomeTodosRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Todo,
 			&i.Complated,
 			&i.Userid,
-			&i.Isdelete,
-			&i.Deletedon,
 		); err != nil {
 			return nil, err
 		}
@@ -215,7 +240,7 @@ SET
     id = $1,
     complated = $2
 WHERE userid = $3 AND isdelete = FALSE
-RETURNING id, todo, complated, userid, isdelete, deletedon
+RETURNING id, todo, complated, userid
 `
 
 type UpdateStatusComplateParams struct {
@@ -224,16 +249,21 @@ type UpdateStatusComplateParams struct {
 	Userid    int32 `json:"userid"`
 }
 
-func (q *Queries) UpdateStatusComplate(ctx context.Context, arg UpdateStatusComplateParams) (Todo, error) {
+type UpdateStatusComplateRow struct {
+	ID        int32  `json:"id"`
+	Todo      string `json:"todo"`
+	Complated bool   `json:"complated"`
+	Userid    int32  `json:"userid"`
+}
+
+func (q *Queries) UpdateStatusComplate(ctx context.Context, arg UpdateStatusComplateParams) (UpdateStatusComplateRow, error) {
 	row := q.db.QueryRowContext(ctx, updateStatusComplate, arg.ID, arg.Complated, arg.Userid)
-	var i Todo
+	var i UpdateStatusComplateRow
 	err := row.Scan(
 		&i.ID,
 		&i.Todo,
 		&i.Complated,
 		&i.Userid,
-		&i.Isdelete,
-		&i.Deletedon,
 	)
 	return i, err
 }

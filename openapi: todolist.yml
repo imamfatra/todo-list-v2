@@ -242,6 +242,72 @@ paths:
                   skip: 5
                   limit: 2
         
+  /user/registrasi:
+    post:
+      tags:
+        - "Users"
+      description: Regestrasi new user
+      summary: Registrasi new user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        200:
+          description: Success registrasi new account
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  email:
+                    type: string
+                  username:
+                    type: string
+                  userId:
+                    type: integer
+
+  /user/login:
+    post:
+      tags:
+        - "Users"
+      description: Login in account
+      summary: Login in account
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        200:
+          description: Success login in account
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  email:
+                    type: string
+                  username:
+                    type: string
+                  userId:
+                    type: integer
+                  token:
+                    type: string
+
 
 components:
   schemas:

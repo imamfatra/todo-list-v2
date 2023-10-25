@@ -9,16 +9,16 @@ import (
 )
 
 type Querier interface {
-	AddaNewTodo(ctx context.Context, arg AddaNewTodoParams) (Todo, error)
+	AddaNewTodo(ctx context.Context, arg AddaNewTodoParams) (AddaNewTodoRow, error)
 	CountAllTodos(ctx context.Context, userid int32) (int64, error)
 	CreateAccount(ctx context.Context, arg CreateAccountParams) (User, error)
 	DeleteaTodo(ctx context.Context, arg DeleteaTodoParams) (Todo, error)
 	GetAccount(ctx context.Context, userid int32) (User, error)
-	GetAllTodos(ctx context.Context, userid int32) ([]Todo, error)
-	GetRandomaTodo(ctx context.Context) (Todo, error)
-	GetSingleaTodos(ctx context.Context, arg GetSingleaTodosParams) (Todo, error)
-	GetSomeTodos(ctx context.Context, arg GetSomeTodosParams) ([]Todo, error)
-	UpdateStatusComplate(ctx context.Context, arg UpdateStatusComplateParams) (Todo, error)
+	GetAllTodos(ctx context.Context, userid int32) ([]GetAllTodosRow, error)
+	GetRandomaTodo(ctx context.Context) (GetRandomaTodoRow, error)
+	GetSingleaTodos(ctx context.Context, arg GetSingleaTodosParams) (GetSingleaTodosRow, error)
+	GetSomeTodos(ctx context.Context, arg GetSomeTodosParams) ([]GetSomeTodosRow, error)
+	UpdateStatusComplate(ctx context.Context, arg UpdateStatusComplateParams) (UpdateStatusComplateRow, error)
 }
 
 var _ Querier = (*Queries)(nil)

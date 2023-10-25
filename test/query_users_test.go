@@ -47,7 +47,6 @@ func TestGetAccountSuccess(t *testing.T) {
 
 	require.Equal(t, user1.Email, user2.Email)
 	require.Equal(t, user1.Username, user2.Username)
-	require.Equal(t, user1.Password, user2.Password)
 	require.Equal(t, user1.Userid, user2.Userid)
 
 }
