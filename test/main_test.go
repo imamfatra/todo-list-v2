@@ -7,12 +7,15 @@ import (
 	"testing"
 	"todo-api/model"
 	"todo-api/repository"
+	"todo-api/service"
 
+	"github.com/go-playground/validator/v10"
 	_ "github.com/lib/pq"
 )
 
 var testQueries *repository.Queries
 var testDB *sql.DB
+var serviceTodo service.TodoService
 
 func delTable(db *sql.DB) {
 	db.Exec("DELETE FROM todos")
@@ -31,6 +34,9 @@ func TestMain(m *testing.M) {
 	}
 
 	testQueries = repository.New(testDB)
+
+	var validate = validator.New()
+	serviceTodo = service.NewTodoService(testDB, validate)
 
 	os.Exit(m.Run())
 }
