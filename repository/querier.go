@@ -13,7 +13,7 @@ type Querier interface {
 	CountAllTodos(ctx context.Context, userid int32) (int64, error)
 	CreateAccount(ctx context.Context, arg CreateAccountParams) (User, error)
 	DeleteaTodo(ctx context.Context, arg DeleteaTodoParams) (Todo, error)
-	GetAccount(ctx context.Context, userid int32) (User, error)
+	GetAccount(ctx context.Context, arg GetAccountParams) (User, error)
 	GetAllTodos(ctx context.Context, userid int32) ([]GetAllTodosRow, error)
 	GetRandomaTodo(ctx context.Context) (GetRandomaTodoRow, error)
 	GetSingleaTodos(ctx context.Context, arg GetSingleaTodosParams) (GetSingleaTodosRow, error)

@@ -3,6 +3,8 @@ package service
 import (
 	"context"
 	"database/sql"
+	"todo-api/exception"
+	"todo-api/helper"
 	"todo-api/model"
 	"todo-api/repository"
 
@@ -10,51 +12,241 @@ import (
 )
 
 type TodoServiceImpl struct {
-	Query    repository.Queries
+	// Query    *repository.Queries
 	DB       *sql.DB
 	Validate *validator.Validate
 }
 
-func NewTodoService(query repository.Queries, db *sql.DB, validate *validator.Validate) TodoService {
+func NewTodoService(db *sql.DB, validate *validator.Validate) TodoService {
 	return &TodoServiceImpl{
-		Query:    query,
 		DB:       db,
 		Validate: validate,
 	}
 }
 
-func (repository *TodoServiceImpl) registrasi(ctx context.Context, request model.RegistrasiRequest) (model.RegistrasiResponse, error) {
-	panic("not implemented") // TODO: Implement
+func (service *TodoServiceImpl) Registrasi(ctx context.Context, request model.RegistrasiRequest) model.RegistrasiResponse {
+	err := service.Validate.Struct(request)
+	helper.IfError(err)
+
+	var user repository.User
+	err = helper.ExecTx(ctx, service.DB, func(q *repository.Queries) error {
+		arg := repository.CreateAccountParams{
+			Email:    request.Email,
+			Username: request.Username,
+			Password: request.Password,
+		}
+
+		user, err = q.CreateAccount(ctx, arg)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		panic(exception.NewNotFoundError(err.Error()))
+	}
+
+	result := model.RegistrasiResponse{
+		Email:    user.Email,
+		Username: user.Username,
+		Userid:   user.Userid,
+	}
+	return result
 }
 
-func (repository *TodoServiceImpl) login(ctx context.Context, request model.LoginRequest) (model.LoginResponse, error) {
-	panic("not implemented") // TODO: Implement
+func (service *TodoServiceImpl) Login(ctx context.Context, request model.LoginRequest) model.LoginResponse {
+	err := service.Validate.Struct(request)
+	helper.IfError(err)
+
+	var user repository.User
+	err = helper.ExecTx(ctx, service.DB, func(q *repository.Queries) error {
+		arg := repository.GetAccountParams{
+			Username: request.Username,
+			Password: request.Password,
+		}
+
+		user, err = q.GetAccount(ctx, arg)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		panic(exception.NewNotFoundError(err.Error()))
+	}
+
+	result := model.LoginResponse{
+		Email:    user.Email,
+		Username: user.Username,
+		Userid:   user.Userid,
+		Token:    "abcd",
+	}
+
+	return result
 }
 
-func (repository *TodoServiceImpl) GetAllTodo(ctx context.Context, userid model.GetAllTodoRequest) (model.GetAllTodosResponse, error) {
-	panic("not implemented") // TODO: Implement
+func (service *TodoServiceImpl) GetAllTodo(ctx context.Context, request model.GetAllTodoRequest) model.GetAllTodosResponse {
+	err := service.Validate.Struct(request)
+	helper.IfError(err)
+
+	var todos []repository.GetAllTodosRow
+	err = helper.ExecTx(ctx, service.DB, func(q *repository.Queries) error {
+		userid := request.Userid
+		todos, err = q.GetAllTodos(ctx, userid)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		panic(exception.NewNotFoundError(err.Error()))
+	}
+
+	result := model.GetAllTodosResponse{
+		Todos: todos,
+		Total: int64(len(todos)),
+	}
+
+	return result
 }
 
-func (repository *TodoServiceImpl) AddTodo(ctx context.Context, request model.AddNewTodoRequest) (repository.AddaNewTodoRow, error) {
-	panic("not implemented") // TODO: Implement
+func (service *TodoServiceImpl) AddTodo(ctx context.Context, request model.AddNewTodoRequest) repository.AddaNewTodoRow {
+	err := service.Validate.Struct(request)
+	helper.IfError(err)
+
+	var user repository.AddaNewTodoRow
+	err = helper.ExecTx(ctx, service.DB, func(q *repository.Queries) error {
+		arg := repository.AddaNewTodoParams{
+			Todo:      request.Todo,
+			Complated: request.Complated,
+			Userid:    request.Userid,
+		}
+		user, err = q.AddaNewTodo(ctx, arg)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		panic(exception.NewNotFoundError(err.Error()))
+	}
+
+	return user
 }
 
-func (repository *TodoServiceImpl) GetTodo(ctx context.Context, request model.GetorDeleteTodoRequest) (repository.GetSingleaTodosRow, error) {
-	panic("not implemented") // TODO: Implement
+func (service *TodoServiceImpl) GetTodo(ctx context.Context, request model.GetorDeleteTodoRequest) repository.GetSingleaTodosRow {
+	err := service.Validate.Struct(request)
+	helper.IfError(err)
+
+	var user repository.GetSingleaTodosRow
+	err = helper.ExecTx(ctx, service.DB, func(q *repository.Queries) error {
+		arg := repository.GetSingleaTodosParams{
+			Userid: request.Userid,
+			ID:     request.ID,
+		}
+		user, err = q.GetSingleaTodos(ctx, arg)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		panic(exception.NewNotFoundError(err.Error()))
+	}
+
+	return user
 }
 
-func (repository *TodoServiceImpl) UpdateStatusTodo(ctx context.Context, request model.UpdateStatusTodoRequest) (repository.UpdateStatusComplateRow, error) {
-	panic("not implemented") // TODO: Implement
+func (service *TodoServiceImpl) UpdateStatusTodo(ctx context.Context, request model.UpdateStatusTodoRequest) repository.UpdateStatusComplateRow {
+	err := service.Validate.Struct(request)
+	helper.IfError(err)
+
+	var user repository.UpdateStatusComplateRow
+	err = helper.ExecTx(ctx, service.DB, func(q *repository.Queries) error {
+		arg := repository.UpdateStatusComplateParams{
+			ID:        request.ID,
+			Complated: request.Complated,
+			Userid:    request.Userid,
+		}
+		user, err = q.UpdateStatusComplate(ctx, arg)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		panic(exception.NewNotFoundError(err.Error()))
+	}
+	return user
 }
 
-func (repository *TodoServiceImpl) DeleteTodo(ctx context.Context, request model.GetorDeleteTodoRequest) (repository.Todo, error) {
-	panic("not implemented") // TODO: Implement
+func (service *TodoServiceImpl) DeleteTodo(ctx context.Context, request model.GetorDeleteTodoRequest) repository.Todo {
+	err := service.Validate.Struct(request)
+	helper.IfError(err)
+
+	var user repository.Todo
+	err = helper.ExecTx(ctx, service.DB, func(q *repository.Queries) error {
+		arg := repository.DeleteaTodoParams{
+			ID:     request.ID,
+			Userid: request.Userid,
+		}
+		user, err = q.DeleteaTodo(ctx, arg)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		panic(exception.NewNotFoundError(err.Error()))
+	}
+
+	return user
 }
 
-func (repository *TodoServiceImpl) GetRandomTodo(ctx context.Context) (repository.GetRandomaTodoRow, error) {
-	panic("not implemented") // TODO: Implement
+func (service *TodoServiceImpl) GetRandomTodo(ctx context.Context) repository.GetRandomaTodoRow {
+	var user repository.GetRandomaTodoRow
+	err := helper.ExecTx(ctx, service.DB, func(q *repository.Queries) error {
+		var err error
+		user, err = q.GetRandomaTodo(ctx)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		panic(exception.NewNotFoundError(err.Error()))
+	}
+
+	return user
 }
 
-func (repository *TodoServiceImpl) GetTodoFilter(ctx context.Context, request model.GetTodoFilterRequest) (model.GetTodoFilterResponse, error) {
-	panic("not implemented") // TODO: Implement
+func (service *TodoServiceImpl) GetTodoFilter(ctx context.Context, request model.GetTodoFilterRequest) model.GetTodoFilterResponse {
+	err := service.Validate.Struct(request)
+	helper.IfError(err)
+
+	var user []repository.GetSomeTodosRow
+	err = helper.ExecTx(ctx, service.DB, func(q *repository.Queries) error {
+		arg := repository.GetSomeTodosParams{
+			Userid: request.Userid,
+			Limit:  request.Limit,
+			Offset: request.Offset,
+		}
+		user, err = q.GetSomeTodos(ctx, arg)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		panic(exception.NewNotFoundError(err.Error()))
+	}
+
+	result := model.GetTodoFilterResponse{
+		Todos: user,
+		Total: int32(len(user)),
+		Skip:  request.Offset,
+		Limit: request.Limit,
+	}
+
+	return result
 }

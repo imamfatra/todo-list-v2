@@ -18,8 +18,8 @@ func registrasiSerivce(t *testing.T) model.RegistrasiRequest {
 		Password: "secret1",
 	}
 
-	response, err := serviceTodo.Registrasi(context.Background(), request)
-	require.NoError(t, err)
+	response := serviceTodo.Registrasi(context.Background(), request)
+	// require.NoError(t, err)
 	require.NotEmpty(t, response)
 
 	require.Equal(t, request.Email, response.Email)
@@ -30,12 +30,12 @@ func registrasiSerivce(t *testing.T) model.RegistrasiRequest {
 	return request
 }
 
-func TestRegistrasiService(t *testing.T) {
+func TestRegistrasiServiceSuccess(t *testing.T) {
 	delTable(testDB)
 	registrasiSerivce(t)
 }
 
-func TestLoginService(t *testing.T) {
+func TestLoginServiceSuccess(t *testing.T) {
 	delTable(testDB)
 	user := registrasiSerivce(t)
 
@@ -43,12 +43,21 @@ func TestLoginService(t *testing.T) {
 		Username: user.Username,
 		Password: user.Password,
 	}
-	response, err := serviceTodo.Login(context.Background(), request)
-	require.NoError(t, err)
+	response := serviceTodo.Login(context.Background(), request)
+	// require.NoError(t, err)
 	require.NotEmpty(t, response)
 
 	require.Equal(t, request.Username, response.Username)
 	require.Equal(t, request.Username, response.Username)
 	require.NotZero(t, response.Userid)
+	fmt.Println(response)
+}
+
+func TestLoginFailed(t *testing.T) {
+	reques := model.LoginRequest{
+		Username: "Anonim1",
+		Password: "123abcd",
+	}
+	response := serviceTodo.Login(context.Background(), reques)
 	fmt.Println(response)
 }

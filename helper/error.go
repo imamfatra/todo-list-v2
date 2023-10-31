@@ -1,9 +1,16 @@
 package helper
 
-import "fmt"
-
 func IfError(err error) {
 	if err != nil {
-		fmt.Println(err.Error())
+		panic(err)
 	}
 }
+
+// var ErrValidate = errors.New("ErrorValidation")
+
+// func ErrValidation(err error) error {
+// 	if err != nil {
+// 		return ErrValidate
+// 	}
+// 	return nil
+// }

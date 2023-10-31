@@ -3,8 +3,11 @@ package test_test
 import (
 	"database/sql"
 	"log"
+	"net/http"
 	"os"
 	"testing"
+	"todo-api/app"
+	"todo-api/controller"
 	"todo-api/model"
 	"todo-api/repository"
 	"todo-api/service"
@@ -16,6 +19,7 @@ import (
 var testQueries *repository.Queries
 var testDB *sql.DB
 var serviceTodo service.TodoService
+var hendler http.Handler
 
 func delTable(db *sql.DB) {
 	db.Exec("DELETE FROM todos")
@@ -37,6 +41,8 @@ func TestMain(m *testing.M) {
 
 	var validate = validator.New()
 	serviceTodo = service.NewTodoService(testDB, validate)
+	controllerTodo := controller.NewTodoController(serviceTodo)
+	hendler = app.NewRouter(controllerTodo)
 
 	os.Exit(m.Run())
 }

@@ -1,0 +1,41 @@
+### Registrasi success
+POST http://localhost:3000/api/user/registrasi
+Accept: application/json
+Content-Type: application/json
+
+{
+    "email": "aku@mail.com",
+    "username": "andini",
+    "password": "Atlanti322k"
+}
+
+### Registrasi validation failed (Bad request)
+POST http://localhost:3000/api/user/registrasi
+Accept: application/json
+Content-Type: application/json
+
+{
+    "email": "aku@.com",
+    "username": "andini",
+    "password": "Atlanti322k"
+}
+
+### Login success
+POST http://localhost:3000/api/user/login
+Accept: application/json
+Content-Type: application/json
+
+{
+    "username": "andini",
+    "password": "Atlanti322k"
+}
+
+### Login validation failed (Bad request)
+POST http://localhost:3000/api/user/login
+Accept: application/json
+Content-Type: application/json
+
+{
+    "username": "jameLili",
+    "password": "Atlanti322k"
+}

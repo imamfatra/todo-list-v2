@@ -2,6 +2,7 @@ package test_test
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"todo-api/model"
 	"todo-api/repository"
@@ -65,11 +66,12 @@ func TestGetAccountFailed(t *testing.T) {
 
 	arg := repository.GetAccountParams{
 		Username: user1.Username,
-		Password: "Alda",
+		Password: "Aldaaaa",
 	}
 
 	user2, err := testQueries.GetAccount(context.Background(), arg)
 	require.Error(t, err)
 	require.Empty(t, user2)
+	fmt.Println(err)
 
 }

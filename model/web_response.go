@@ -33,3 +33,9 @@ type GetTodoFilterResponse struct {
 	Skip  int32                        `json:"skip"`
 	Limit int32                        `json:"limit"`
 }
+
+type WebResponse struct {
+	Code   int         `json:"code"`
+	Status string      `json:"status"`
+	Data   interface{} `json:"data"`
+}
