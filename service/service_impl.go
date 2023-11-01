@@ -54,7 +54,7 @@ func (service *TodoServiceImpl) Registrasi(ctx context.Context, request model.Re
 	return result
 }
 
-func (service *TodoServiceImpl) Login(ctx context.Context, request model.LoginRequest) model.LoginResponse {
+func (service *TodoServiceImpl) Login(ctx context.Context, request model.LoginRequest) repository.User {
 	err := service.Validate.Struct(request)
 	helper.IfError(err)
 
@@ -75,14 +75,7 @@ func (service *TodoServiceImpl) Login(ctx context.Context, request model.LoginRe
 		panic(exception.NewNotFoundError(err.Error()))
 	}
 
-	result := model.LoginResponse{
-		Email:    user.Email,
-		Username: user.Username,
-		Userid:   user.Userid,
-		Token:    "abcd",
-	}
-
-	return result
+	return user
 }
 
 func (service *TodoServiceImpl) GetAllTodo(ctx context.Context, request model.GetAllTodoRequest) model.GetAllTodosResponse {

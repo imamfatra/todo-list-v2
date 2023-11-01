@@ -3,6 +3,7 @@ package controller
 import (
 	"net/http"
 	"todo-api/helper"
+	"todo-api/middleware"
 	"todo-api/model"
 	"todo-api/service"
 
@@ -25,7 +26,16 @@ func (controller *TodoControllerImpl) Registrasi(writer http.ResponseWriter, req
 	var registrasiRequest model.RegistrasiRequest
 	helper.ReadFromRequestBody(request, &registrasiRequest)
 
-	registrasiResponse := controller.TodoService.Registrasi(request.Context(), registrasiRequest)
+	hassPassword, err := model.HashPassword(registrasiRequest.Password)
+	helper.IfError(err)
+
+	arg := model.RegistrasiRequest{
+		Email:    registrasiRequest.Email,
+		Username: registrasiRequest.Username,
+		Password: hassPassword,
+	}
+
+	registrasiResponse := controller.TodoService.Registrasi(request.Context(), arg)
 	webResponse := model.WebResponse{
 		Code:   http.StatusOK,
 		Status: "SUCCESS",
@@ -38,11 +48,33 @@ func (controller *TodoControllerImpl) Login(writer http.ResponseWriter, request 
 	var loginRequest model.LoginRequest
 	helper.ReadFromRequestBody(request, &loginRequest)
 
-	LoginResponse := controller.TodoService.Login(request.Context(), loginRequest)
+	loginResponse := controller.TodoService.Login(request.Context(), loginRequest)
+	err := model.CheckPassword(loginRequest.Password, loginResponse.Password)
+	if err != nil {
+		webResponse := model.WebResponse{
+			Code:   http.StatusUnauthorized,
+			Status: "UNAUTHORIZED",
+			Data:   err,
+		}
+		helper.WriteToResponse(writer, webResponse)
+		return
+	}
+
+	config, err := model.LoadConfig("../")
+	helper.IfError(err)
+
+	maker, err := middleware.NewPasetoMaker(config.TokenSymmetricKey)
+	token, err := maker.CreateToken(loginRequest.Username, config.AccessTokenDuration)
+
 	webResponse := model.WebResponse{
 		Code:   http.StatusOK,
 		Status: "SUCCESS",
-		Data:   LoginResponse,
+		Data: model.LoginResponse{
+			Email:    loginResponse.Email,
+			Username: loginResponse.Username,
+			Userid:   loginResponse.Userid,
+			Token:    token,
+		},
 	}
 	helper.WriteToResponse(writer, webResponse)
 }

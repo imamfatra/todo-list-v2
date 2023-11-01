@@ -8,7 +8,7 @@ import (
 
 type TodoService interface {
 	Registrasi(ctx context.Context, request model.RegistrasiRequest) model.RegistrasiResponse
-	Login(ctx context.Context, request model.LoginRequest) model.LoginResponse
+	Login(ctx context.Context, request model.LoginRequest) repository.User
 
 	GetAllTodo(ctx context.Context, request model.GetAllTodoRequest) model.GetAllTodosResponse
 	AddTodo(ctx context.Context, request model.AddNewTodoRequest) repository.AddaNewTodoRow

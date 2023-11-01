@@ -10,7 +10,7 @@ import (
 func NewRouter(todoControler controller.TodoController) *httprouter.Router {
 	router := httprouter.New()
 
-	// router.GET("/api/todos", todoControllr.GetAllTodo)
+	// router.GET("/api/todos", middleware.Auth(todoControler.GetAllTodo))
 	// // router.GET("/api/todos/random", todoControllr.GetRandomTodo)
 	// router.POST("/api/todos", todoControllr.AddTodo)
 	// router.GET("/api/todos/:id", todoControllr.GetTodo)
