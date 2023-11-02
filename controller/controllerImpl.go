@@ -5,6 +5,7 @@ import (
 	"todo-api/helper"
 	"todo-api/middleware"
 	"todo-api/model"
+	"todo-api/repository"
 	"todo-api/service"
 
 	"strconv"
@@ -29,7 +30,7 @@ func (controller *TodoControllerImpl) Registrasi(writer http.ResponseWriter, req
 	hassPassword, err := model.HashPassword(registrasiRequest.Password)
 	helper.IfError(err)
 
-	arg := model.RegistrasiRequest{
+	arg := repository.CreateAccountParams{
 		Email:    registrasiRequest.Email,
 		Username: registrasiRequest.Username,
 		Password: hassPassword,
@@ -80,8 +81,13 @@ func (controller *TodoControllerImpl) Login(writer http.ResponseWriter, request 
 }
 
 func (controller *TodoControllerImpl) GetAllTodo(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-	var todoRequest model.GetAllTodoRequest
-	helper.ReadFromRequestBody(request, &todoRequest)
+	userIdStr := params.ByName("userId")
+	userId, err := strconv.Atoi(userIdStr)
+	helper.IfError(err)
+
+	todoRequest := model.GetAllTodoRequest{
+		Userid: int32(userId),
+	}
 
 	todoResponse := controller.TodoService.GetAllTodo(request.Context(), todoRequest)
 	webResponse := model.WebResponse{
@@ -106,11 +112,11 @@ func (controller *TodoControllerImpl) AddTodo(writer http.ResponseWriter, reques
 }
 
 func (controller *TodoControllerImpl) GetTodo(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-	useridStr := params.ByName("userid")
-	userid, err := strconv.Atoi(useridStr)
+	userIdStr := request.URL.Query().Get("userId")
+	userid, err := strconv.Atoi(userIdStr)
 	helper.IfError(err)
 
-	idStr := params.ByName("id")
+	idStr := request.URL.Query().Get("id")
 	id, err := strconv.Atoi(idStr)
 	helper.IfError(err)
 
@@ -118,7 +124,6 @@ func (controller *TodoControllerImpl) GetTodo(writer http.ResponseWriter, reques
 		Userid: int32(userid),
 		ID:     int32(id),
 	}
-	helper.ReadFromRequestBody(request, &todoRequest)
 
 	todoResponse := controller.TodoService.GetTodo(request.Context(), todoRequest)
 	webResponse := model.WebResponse{
@@ -130,8 +135,19 @@ func (controller *TodoControllerImpl) GetTodo(writer http.ResponseWriter, reques
 }
 
 func (controller *TodoControllerImpl) UpdateStatusTodo(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	userIdStr := request.URL.Query().Get("userId")
+	userid, err := strconv.Atoi(userIdStr)
+	helper.IfError(err)
+
+	idStr := request.URL.Query().Get("id")
+	id, err := strconv.Atoi(idStr)
+	helper.IfError(err)
+
 	var todoRequest model.UpdateStatusTodoRequest
 	helper.ReadFromRequestBody(request, &todoRequest)
+
+	todoRequest.ID = int32(id)
+	todoRequest.Userid = int32(userid)
 
 	todoResponse := controller.TodoService.UpdateStatusTodo(request.Context(), todoRequest)
 	webResponse := model.WebResponse{
@@ -143,11 +159,11 @@ func (controller *TodoControllerImpl) UpdateStatusTodo(writer http.ResponseWrite
 }
 
 func (controller *TodoControllerImpl) DeleteTodo(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-	useridStr := params.ByName("userid")
-	userid, err := strconv.Atoi(useridStr)
+	userIdStr := request.URL.Query().Get("userId")
+	userid, err := strconv.Atoi(userIdStr)
 	helper.IfError(err)
 
-	idStr := params.ByName("id")
+	idStr := request.URL.Query().Get("id")
 	id, err := strconv.Atoi(idStr)
 	helper.IfError(err)
 
@@ -155,7 +171,6 @@ func (controller *TodoControllerImpl) DeleteTodo(writer http.ResponseWriter, req
 		Userid: int32(userid),
 		ID:     int32(id),
 	}
-	helper.ReadFromRequestBody(request, &todoRequest)
 
 	todoResponse := controller.TodoService.DeleteTodo(request.Context(), todoRequest)
 	webResponse := model.WebResponse{
@@ -167,7 +182,15 @@ func (controller *TodoControllerImpl) DeleteTodo(writer http.ResponseWriter, req
 }
 
 func (controller *TodoControllerImpl) GetRandomTodo(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-	todoResponse := controller.TodoService.GetRandomTodo(request.Context())
+	userIdStr := params.ByName("userId")
+	userid, err := strconv.Atoi(userIdStr)
+	helper.IfError(err)
+
+	arg := model.GetAllTodoRequest{
+		Userid: int32(userid),
+	}
+
+	todoResponse := controller.TodoService.GetRandomTodo(request.Context(), arg)
 	webResponse := model.WebResponse{
 		Code:   http.StatusOK,
 		Status: "SUCCESS",
@@ -177,15 +200,15 @@ func (controller *TodoControllerImpl) GetRandomTodo(writer http.ResponseWriter, 
 }
 
 func (controller *TodoControllerImpl) GetTodoFilter(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-	useridStr := params.ByName("userid")
-	userid, err := strconv.Atoi(useridStr)
+	userIdStr := request.URL.Query().Get("userId")
+	userid, err := strconv.Atoi(userIdStr)
 	helper.IfError(err)
 
-	limitStr := params.ByName("limit")
+	limitStr := request.URL.Query().Get("limit")
 	limit, err := strconv.Atoi(limitStr)
 	helper.IfError(err)
 
-	offsetStr := params.ByName("offset")
+	offsetStr := request.URL.Query().Get("offset")
 	offset, err := strconv.Atoi(offsetStr)
 	helper.IfError(err)
 
@@ -194,8 +217,6 @@ func (controller *TodoControllerImpl) GetTodoFilter(writer http.ResponseWriter, 
 		Limit:  int32(limit),
 		Offset: int32(offset),
 	}
-	helper.ReadFromRequestBody(request, &todoRequest)
-
 	todoResponse := controller.TodoService.GetTodoFilter(request.Context(), todoRequest)
 	webResponse := model.WebResponse{
 		Code:   http.StatusOK,

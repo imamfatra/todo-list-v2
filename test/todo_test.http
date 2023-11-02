@@ -15,9 +15,9 @@ Accept: application/json
 Content-Type: application/json
 
 {
-    "email": "aku@.com",
+    "email": "aku@mail.com",
     "username": "andini",
-    "password": "Atlanti322k"
+    "password": "Atlantik"
 }
 
 ### Login success
@@ -27,10 +27,10 @@ Content-Type: application/json
 
 {
     "username": "andini",
-    "password": "Atlanti322k"
+    "password": "Atlantik"
 }
 
-### Login validation failed (Bad request)
+### Login validation failed (Not found)
 POST http://localhost:3000/api/user/login
 Accept: application/json
 Content-Type: application/json
@@ -39,3 +39,51 @@ Content-Type: application/json
     "username": "jameLili",
     "password": "Atlanti322k"
 }
+
+### add new todo
+POST http://localhost:3000/api/todo
+Accept: application/json
+Content-Type: application/json
+authorization: v2.local.hgR2n61ejzQ1e-_1bT8L-XM_tENC_z2rIhwrkTQ36bMrU5ePNy0SExLpznnAji2nANFy-8ncLfyLJIVQ3C5EwUEn8wnwBr31iLVYaDwX64kQoVxkM6xguTZMH6IHL484kV8Y1h6fzNOBZDDNFydH7tqUJY2WUV6W6OmSNWZzUw3PSZWBibQJ02i_8D42m6kGpA-NDUlsiKt365ImG5bpNRtdG4RwEECmppYwqDZj9ZzlTZ8dIiKdAROQ6tcGaYT5kkQkybKtvLsVbYFXjl8.bnVsbA
+
+{
+    "todo": "pray to god in night",
+    "complated": true,
+    "userid": 54
+}
+
+
+### Get All todo
+GET http://localhost:3000/api/todos/54
+Accept: application/json
+authorization: v2.local.hgR2n61ejzQ1e-_1bT8L-XM_tENC_z2rIhwrkTQ36bMrU5ePNy0SExLpznnAji2nANFy-8ncLfyLJIVQ3C5EwUEn8wnwBr31iLVYaDwX64kQoVxkM6xguTZMH6IHL484kV8Y1h6fzNOBZDDNFydH7tqUJY2WUV6W6OmSNWZzUw3PSZWBibQJ02i_8D42m6kGpA-NDUlsiKt365ImG5bpNRtdG4RwEECmppYwqDZj9ZzlTZ8dIiKdAROQ6tcGaYT5kkQkybKtvLsVbYFXjl8.bnVsbA
+
+### Get random todo
+GET http://localhost:3000/api/todo/random/54
+Accept: application/json
+authorization: v2.local.hgR2n61ejzQ1e-_1bT8L-XM_tENC_z2rIhwrkTQ36bMrU5ePNy0SExLpznnAji2nANFy-8ncLfyLJIVQ3C5EwUEn8wnwBr31iLVYaDwX64kQoVxkM6xguTZMH6IHL484kV8Y1h6fzNOBZDDNFydH7tqUJY2WUV6W6OmSNWZzUw3PSZWBibQJ02i_8D42m6kGpA-NDUlsiKt365ImG5bpNRtdG4RwEECmppYwqDZj9ZzlTZ8dIiKdAROQ6tcGaYT5kkQkybKtvLsVbYFXjl8.bnVsbA
+
+### Get a todo
+GET http://localhost:3000/api/todo?userId=54&id=367
+Accept: application/json
+authorization: v2.local.hgR2n61ejzQ1e-_1bT8L-XM_tENC_z2rIhwrkTQ36bMrU5ePNy0SExLpznnAji2nANFy-8ncLfyLJIVQ3C5EwUEn8wnwBr31iLVYaDwX64kQoVxkM6xguTZMH6IHL484kV8Y1h6fzNOBZDDNFydH7tqUJY2WUV6W6OmSNWZzUw3PSZWBibQJ02i_8D42m6kGpA-NDUlsiKt365ImG5bpNRtdG4RwEECmppYwqDZj9ZzlTZ8dIiKdAROQ6tcGaYT5kkQkybKtvLsVbYFXjl8.bnVsbA
+
+### Update status todo
+PUT http://localhost:3000/api/todo?userId=54&id=367 
+Accept: application/json
+Content-Type: application/json
+authorization: v2.local.hgR2n61ejzQ1e-_1bT8L-XM_tENC_z2rIhwrkTQ36bMrU5ePNy0SExLpznnAji2nANFy-8ncLfyLJIVQ3C5EwUEn8wnwBr31iLVYaDwX64kQoVxkM6xguTZMH6IHL484kV8Y1h6fzNOBZDDNFydH7tqUJY2WUV6W6OmSNWZzUw3PSZWBibQJ02i_8D42m6kGpA-NDUlsiKt365ImG5bpNRtdG4RwEECmppYwqDZj9ZzlTZ8dIiKdAROQ6tcGaYT5kkQkybKtvLsVbYFXjl8.bnVsbA
+
+{
+    "complated": false
+}
+
+### Delete todo
+DELETE http://localhost:3000/api/todo?userId=54&id=369
+Accept: application/json
+authorization: v2.local.hgR2n61ejzQ1e-_1bT8L-XM_tENC_z2rIhwrkTQ36bMrU5ePNy0SExLpznnAji2nANFy-8ncLfyLJIVQ3C5EwUEn8wnwBr31iLVYaDwX64kQoVxkM6xguTZMH6IHL484kV8Y1h6fzNOBZDDNFydH7tqUJY2WUV6W6OmSNWZzUw3PSZWBibQJ02i_8D42m6kGpA-NDUlsiKt365ImG5bpNRtdG4RwEECmppYwqDZj9ZzlTZ8dIiKdAROQ6tcGaYT5kkQkybKtvLsVbYFXjl8.bnVsbA
+
+### Get todos with filter
+GET http://localhost:3000/api/todos?userId=54&limit=2&offset=2
+Accept: application/json
+authorization: v2.local.hgR2n61ejzQ1e-_1bT8L-XM_tENC_z2rIhwrkTQ36bMrU5ePNy0SExLpznnAji2nANFy-8ncLfyLJIVQ3C5EwUEn8wnwBr31iLVYaDwX64kQoVxkM6xguTZMH6IHL484kV8Y1h6fzNOBZDDNFydH7tqUJY2WUV6W6OmSNWZzUw3PSZWBibQJ02i_8D42m6kGpA-NDUlsiKt365ImG5bpNRtdG4RwEECmppYwqDZj9ZzlTZ8dIiKdAROQ6tcGaYT5kkQkybKtvLsVbYFXjl8.bnVsbA

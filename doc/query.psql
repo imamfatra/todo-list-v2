@@ -2,6 +2,8 @@ SELECT * FROM todos;
 
 SELECT * FROM users;
 
+DELETE FROM users;
+
 SELECT * FROM todos limit 5;
 
 SELECT COUNT(*)

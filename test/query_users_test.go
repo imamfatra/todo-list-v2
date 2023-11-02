@@ -42,12 +42,7 @@ func TestGetAccountSuccess(t *testing.T) {
 	require.NoError(t, err)
 	require.NotEmpty(t, user1)
 
-	arg := repository.GetAccountParams{
-		Username: user1.Username,
-		Password: user1.Password,
-	}
-
-	user2, err := testQueries.GetAccount(context.Background(), arg)
+	user2, err := testQueries.GetAccount(context.Background(), user1.Username)
 	require.NoError(t, err)
 	require.NotEmpty(t, user2)
 
@@ -64,12 +59,7 @@ func TestGetAccountFailed(t *testing.T) {
 	require.NoError(t, err)
 	require.NotEmpty(t, user1)
 
-	arg := repository.GetAccountParams{
-		Username: user1.Username,
-		Password: "Aldaaaa",
-	}
-
-	user2, err := testQueries.GetAccount(context.Background(), arg)
+	user2, err := testQueries.GetAccount(context.Background(), "abasuf")
 	require.Error(t, err)
 	require.Empty(t, user2)
 	fmt.Println(err)

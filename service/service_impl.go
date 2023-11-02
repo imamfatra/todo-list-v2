@@ -24,7 +24,7 @@ func NewTodoService(db *sql.DB, validate *validator.Validate) TodoService {
 	}
 }
 
-func (service *TodoServiceImpl) Registrasi(ctx context.Context, request model.RegistrasiRequest) model.RegistrasiResponse {
+func (service *TodoServiceImpl) Registrasi(ctx context.Context, request repository.CreateAccountParams) model.RegistrasiResponse {
 	err := service.Validate.Struct(request)
 	helper.IfError(err)
 
@@ -60,12 +60,12 @@ func (service *TodoServiceImpl) Login(ctx context.Context, request model.LoginRe
 
 	var user repository.User
 	err = helper.ExecTx(ctx, service.DB, func(q *repository.Queries) error {
-		arg := repository.GetAccountParams{
-			Username: request.Username,
-			Password: request.Password,
-		}
+		// arg := repository.GetAccountParams{
+		// 	Username: request.Username,
+		// 	Password: request.Password,
+		// }
 
-		user, err = q.GetAccount(ctx, arg)
+		user, err = q.GetAccount(ctx, request.Username)
 		if err != nil {
 			return err
 		}
@@ -196,11 +196,11 @@ func (service *TodoServiceImpl) DeleteTodo(ctx context.Context, request model.Ge
 	return user
 }
 
-func (service *TodoServiceImpl) GetRandomTodo(ctx context.Context) repository.GetRandomaTodoRow {
+func (service *TodoServiceImpl) GetRandomTodo(ctx context.Context, request model.GetAllTodoRequest) repository.GetRandomaTodoRow {
 	var user repository.GetRandomaTodoRow
 	err := helper.ExecTx(ctx, service.DB, func(q *repository.Queries) error {
 		var err error
-		user, err = q.GetRandomaTodo(ctx)
+		user, err = q.GetRandomaTodo(ctx, request.Userid)
 		if err != nil {
 			return err
 		}

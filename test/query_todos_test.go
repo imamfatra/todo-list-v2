@@ -74,15 +74,6 @@ func getIdTodo(db *sql.DB, userid int32) int32 {
 	return id
 }
 
-// func TestGetIdTodo(t *testing.T) {
-// 	id, err := getIdTodo(testDB, 16)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-
-// 	fmt.Println(id)
-// }
-
 func TestCountAllTodo(t *testing.T) {
 	delTable(testDB)
 	user := addSomeTodo(t)
@@ -130,20 +121,20 @@ func TestDeleteTodo(t *testing.T) {
 }
 
 func TestGetRandomTodoNoRow(t *testing.T) {
+	// userid, _ := addOneTodo(t)
 
-	todo, err := testQueries.GetRandomaTodo(context.Background())
+	todo, err := testQueries.GetRandomaTodo(context.Background(), 12123)
 	require.ErrorContains(t, err, fmt.Sprint(sql.ErrNoRows))
-	fmt.Println(todo.ID)
+	require.Empty(t, todo)
 }
 
 func TestGetRandomSuccess(t *testing.T) {
-	delTable(testDB)
-	addSomeTodo(t)
+	// delTable(testDB)
+	user := addSomeTodo(t)
 
-	todo, err := testQueries.GetRandomaTodo(context.Background())
+	todo, err := testQueries.GetRandomaTodo(context.Background(), user.Userid)
 	require.NoError(t, err)
 	require.NotEmpty(t, todo)
-	fmt.Println(todo.ID)
 }
 
 func TestGetSomeTodo(t *testing.T) {

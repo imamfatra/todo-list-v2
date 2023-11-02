@@ -60,19 +60,18 @@ func (q *Queries) CountAllTodos(ctx context.Context, userid int32) (int64, error
 const deleteaTodo = `-- name: DeleteaTodo :one
 UPDATE todos
 SET 
-    id = $1,
     isdelete = TRUE
-WHERE userid = $2
+WHERE userid = $1 AND id = $2 
 RETURNING id, todo, complated, userid, isdelete, deletedon
 `
 
 type DeleteaTodoParams struct {
-	ID     int32 `json:"id"`
 	Userid int32 `json:"userid"`
+	ID     int32 `json:"id"`
 }
 
 func (q *Queries) DeleteaTodo(ctx context.Context, arg DeleteaTodoParams) (Todo, error) {
-	row := q.db.QueryRowContext(ctx, deleteaTodo, arg.ID, arg.Userid)
+	row := q.db.QueryRowContext(ctx, deleteaTodo, arg.Userid, arg.ID)
 	var i Todo
 	err := row.Scan(
 		&i.ID,
@@ -130,7 +129,7 @@ func (q *Queries) GetAllTodos(ctx context.Context, userid int32) ([]GetAllTodosR
 const getRandomaTodo = `-- name: GetRandomaTodo :one
 SELECT id, todo, complated, userid 
 FROM todos
-WHERE isdelete = FALSE
+WHERE isdelete = FALSE AND userid = $1
 ORDER BY RANDOM()
 LIMIT 1
 `
@@ -142,8 +141,8 @@ type GetRandomaTodoRow struct {
 	Userid    int32  `json:"userid"`
 }
 
-func (q *Queries) GetRandomaTodo(ctx context.Context) (GetRandomaTodoRow, error) {
-	row := q.db.QueryRowContext(ctx, getRandomaTodo)
+func (q *Queries) GetRandomaTodo(ctx context.Context, userid int32) (GetRandomaTodoRow, error) {
+	row := q.db.QueryRowContext(ctx, getRandomaTodo, userid)
 	var i GetRandomaTodoRow
 	err := row.Scan(
 		&i.ID,
@@ -237,16 +236,15 @@ func (q *Queries) GetSomeTodos(ctx context.Context, arg GetSomeTodosParams) ([]G
 const updateStatusComplate = `-- name: UpdateStatusComplate :one
 UPDATE todos
 SET 
-    id = $1,
-    complated = $2
-WHERE userid = $3 AND isdelete = FALSE
+    complated = $1
+WHERE userid = $2 AND id = $3 AND isdelete = FALSE
 RETURNING id, todo, complated, userid
 `
 
 type UpdateStatusComplateParams struct {
-	ID        int32 `json:"id"`
 	Complated bool  `json:"complated"`
 	Userid    int32 `json:"userid"`
+	ID        int32 `json:"id"`
 }
 
 type UpdateStatusComplateRow struct {
@@ -257,7 +255,7 @@ type UpdateStatusComplateRow struct {
 }
 
 func (q *Queries) UpdateStatusComplate(ctx context.Context, arg UpdateStatusComplateParams) (UpdateStatusComplateRow, error) {
-	row := q.db.QueryRowContext(ctx, updateStatusComplate, arg.ID, arg.Complated, arg.Userid)
+	row := q.db.QueryRowContext(ctx, updateStatusComplate, arg.Complated, arg.Userid, arg.ID)
 	var i UpdateStatusComplateRow
 	err := row.Scan(
 		&i.ID,

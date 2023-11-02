@@ -10,13 +10,13 @@ import (
 func NewRouter(todoControler controller.TodoController) *httprouter.Router {
 	router := httprouter.New()
 
-	// router.GET("/api/todos", middleware.Auth(todoControler.GetAllTodo))
-	// // router.GET("/api/todos/random", todoControllr.GetRandomTodo)
-	// router.POST("/api/todos", todoControllr.AddTodo)
-	// router.GET("/api/todos/:id", todoControllr.GetTodo)
-	// router.PUT("/api/todos/:id", todoControllr.UpdateStatusTodo)
-	// router.DELETE("/api/todos/:id", todoControllr.DeleteTodo)
-	// router.GET("/api/todos/:limit/:skip", todoControllr.GetAllTodo)
+	router.GET("/api/todos/:userId", todoControler.GetAllTodo)
+	router.GET("/api/todos", todoControler.GetTodoFilter)
+	router.GET("/api/todo/random/:userId", todoControler.GetRandomTodo)
+	router.POST("/api/todo", todoControler.AddTodo)
+	router.GET("/api/todo", todoControler.GetTodo)
+	router.PUT("/api/todo", todoControler.UpdateStatusTodo)
+	router.DELETE("/api/todo", todoControler.DeleteTodo)
 
 	router.POST("/api/user/registrasi", todoControler.Registrasi)
 	router.POST("/api/user/login", todoControler.Login)

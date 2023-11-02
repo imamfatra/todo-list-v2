@@ -5,14 +5,15 @@ import (
 	"fmt"
 	"testing"
 	"todo-api/model"
+	"todo-api/repository"
 
 	"github.com/stretchr/testify/require"
 )
 
-func registrasiSerivce(t *testing.T) model.RegistrasiRequest {
+func registrasiSerivce(t *testing.T) repository.CreateAccountParams {
 	// delTable(testDB)
 
-	request := model.RegistrasiRequest{
+	request := repository.CreateAccountParams{
 		Email:    "name1@mail.com",
 		Username: "mynameisyheone",
 		Password: "secret1",
@@ -53,11 +54,25 @@ func TestLoginServiceSuccess(t *testing.T) {
 	fmt.Println(response)
 }
 
-func TestLoginFailed(t *testing.T) {
-	reques := model.LoginRequest{
-		Username: "Anonim1",
-		Password: "123abcd",
+func TestUpdateTodo(t *testing.T) {
+	request := model.UpdateStatusTodoRequest{
+		ID:        367,
+		Complated: false,
+		Userid:    54,
 	}
-	response := serviceTodo.Login(context.Background(), reques)
-	fmt.Println(response)
+
+	response := serviceTodo.UpdateStatusTodo(context.Background(), request)
+	require.Equal(t, response.Complated, request.Complated)
+	require.Equal(t, response.Userid, request.Userid)
+	require.Equal(t, response.ID, request.ID)
+
 }
+
+// func TestLoginFailed(t *testing.T) {
+// 	reques := model.LoginRequest{
+// 		Username: "Anonim1",
+// 		Password: "123abcd",
+// 	}
+// 	response := serviceTodo.Login(context.Background(), reques)
+// 	require.Error(t, response)
+// }

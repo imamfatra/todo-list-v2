@@ -26,23 +26,21 @@ WHERE userid = $1 AND id = $2 AND isdelete = FALSE;
 -- name: UpdateStatusComplate :one
 UPDATE todos
 SET 
-    id = $1,
-    complated = $2
-WHERE userid = $3 AND isdelete = FALSE
+    complated = $1
+WHERE userid = $2 AND id = $3 AND isdelete = FALSE
 RETURNING id, todo, complated, userid;
 
 -- name: DeleteaTodo :one
 UPDATE todos
 SET 
-    id = $1,
     isdelete = TRUE
-WHERE userid = $2
+WHERE userid = $1 AND id = $2 
 RETURNING *;
 
 -- name: GetRandomaTodo :one
 SELECT id, todo, complated, userid 
 FROM todos
-WHERE isdelete = FALSE
+WHERE isdelete = FALSE AND userid = $1
 ORDER BY RANDOM()
 LIMIT 1;
 

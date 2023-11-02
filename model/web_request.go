@@ -28,7 +28,7 @@ type GetorDeleteTodoRequest struct {
 
 type UpdateStatusTodoRequest struct {
 	ID        int32 `validate:"required,numeric" json:"id"`
-	Complated bool  `validate:"required,boolean" json:"complated"`
+	Complated bool  `validate:"boolean" json:"complated"`
 	Userid    int32 `validate:"required,numeric" json:"userid"`
 }
 

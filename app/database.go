@@ -8,7 +8,7 @@ import (
 )
 
 func NewDB() *sql.DB {
-	config, err := model.LoadConfig("../")
+	config, err := model.LoadConfig("./")
 	if err != nil {
 		log.Fatal("cannot load config: ", err)
 	}

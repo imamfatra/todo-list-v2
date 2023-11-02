@@ -5,12 +5,19 @@ info:
 servers:
   - url: http://localhost:8080
 paths:
-  /todos: 
+  /api/todos/{userId}: 
     get: 
       tags:
         - "Todos"
       description: Get all todos
       summary: Get all todos
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: user id todo
+          schema:
+            type: integer
       responses:
         200:
           description: Success get all todos
@@ -44,6 +51,7 @@ paths:
                       userId: 45
                   total: 30
 
+  /api/todo:
     post:
       tags:
         - "Todos"
@@ -73,16 +81,21 @@ paths:
               schema:
                 $ref: "#/components/schemas/schemaTodo2"
                   
-
-  /todos/{id}:
+  /api/todo?userId={int}&id={int}:
     get:
       tags:
         - "Todos"
       description: Get single a todos
       summary: Get single a todos
       parameters:
+        - name: userId
+          in: query
+          required: true
+          description: user id todos
+          schema:
+            type: integer
         - name: id
-          in: path
+          in: query
           required: true
           description: id todos
           schema:
@@ -101,8 +114,14 @@ paths:
       description: Update status completed
       summary: Update status complated
       parameters:
+        - name: userId
+          in: query
+          required: true
+          description: user id todos
+          schema:
+            type: integer
         - name: id
-          in: path
+          in: query
           required: true
           description: id todos
           schema:
@@ -131,8 +150,14 @@ paths:
       description: Delete a todo with id
       summary: Delete a todo
       parameters:
+        - name: userId
+          in: query
+          required: true
+          description: user id todos
+          schema:
+            type: integer
         - name: id
-          in: path
+          in: query
           required: true
           description: id todos
           schema:
@@ -166,12 +191,19 @@ paths:
                   isDelete: true
                   deletedOn: /* time now */
         
-  /todos/random:
+  /todos/random/{userId}:
     get:
       tags:
         - "Todos"
       description: Get random a todos
       summary: Get random a todos
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: user id todos
+          schema:
+            type: integer
       responses:
         200:
           description: Succes get random a todos
@@ -180,20 +212,26 @@ paths:
               schema:
                 $ref: "#/components/schemas/schemaTodo2"
                 
-  /todos/?limit={numLimit}&skip={numSkip}:
+  /todos?userId={int}&limit={int}&offset={int}:
     get:
       tags:
         - "Todos"
       description: Get some todos 
       summary: Get some todos with filter (limit & skip)
       parameters:
-        - name: numLimit
-          in: path
+        - name: userId
+          in: query
+          required: true
+          description: user id todos
+          schema:
+            type: integer
+        - name: limit
+          in: query
           required: true
           description: number of limit
           schema:
             type: integer
-        - name: numSkip
+        - name: offset
           in: path
           required: true
           description: number of skip
