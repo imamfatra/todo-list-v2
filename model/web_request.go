@@ -17,7 +17,7 @@ type GetAllTodoRequest struct {
 
 type AddNewTodoRequest struct {
 	Todo      string `validate:"required" json:"todo"`
-	Complated bool   `validate:"required,boolean" json:"complated"`
+	Complated bool   `validate:"required,bool" json:"complated"`
 	Userid    int32  `validate:"required,numeric" json:"userid"`
 }
 

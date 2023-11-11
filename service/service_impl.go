@@ -8,40 +8,39 @@ import (
 	"todo-api/model"
 	"todo-api/repository"
 
-	"github.com/go-playground/validator/v10"
+	"github.com/go-playground/validator"
 )
 
 type TodoServiceImpl struct {
-	// Query    *repository.Queries
-	DB       *sql.DB
-	Validate *validator.Validate
+	Validate       *validator.Validate
+	TodoRepository *repository.Queries
+	DB             *sql.DB
 }
 
-func NewTodoService(db *sql.DB, validate *validator.Validate) TodoService {
+func NewTodoService(todoRepository *repository.Queries, validate *validator.Validate, db *sql.DB) TodoService {
 	return &TodoServiceImpl{
-		DB:       db,
-		Validate: validate,
+		TodoRepository: todoRepository,
+		Validate:       validate,
+		DB:             db,
 	}
 }
 
-func (service *TodoServiceImpl) Registrasi(ctx context.Context, request repository.CreateAccountParams) model.RegistrasiResponse {
+func (service *TodoServiceImpl) Registrasi(ctx context.Context, request model.RegistrasiRequest) model.RegistrasiResponse {
 	err := service.Validate.Struct(request)
 	helper.IfError(err)
 
-	var user repository.User
-	err = helper.ExecTx(ctx, service.DB, func(q *repository.Queries) error {
-		arg := repository.CreateAccountParams{
-			Email:    request.Email,
-			Username: request.Username,
-			Password: request.Password,
-		}
+	arg := repository.CreateAccountParams{
+		Email:    request.Email,
+		Username: request.Username,
+		Password: request.Password,
+	}
 
-		user, err = q.CreateAccount(ctx, arg)
-		if err != nil {
-			return err
-		}
-		return nil
-	})
+	tx, err := service.DB.Begin()
+	defer helper.CommitOrRollback(tx)
+	helper.IfError(err)
+
+	query := service.TodoRepository.WithTx(tx)
+	user, err := query.CreateAccount(ctx, arg)
 	if err != nil {
 		panic(exception.NewNotFoundError(err.Error()))
 	}
@@ -58,19 +57,12 @@ func (service *TodoServiceImpl) Login(ctx context.Context, request model.LoginRe
 	err := service.Validate.Struct(request)
 	helper.IfError(err)
 
-	var user repository.User
-	err = helper.ExecTx(ctx, service.DB, func(q *repository.Queries) error {
-		// arg := repository.GetAccountParams{
-		// 	Username: request.Username,
-		// 	Password: request.Password,
-		// }
+	tx, err := service.DB.Begin()
+	defer helper.CommitOrRollback(tx)
+	helper.IfError(err)
 
-		user, err = q.GetAccount(ctx, request.Username)
-		if err != nil {
-			return err
-		}
-		return nil
-	})
+	query := service.TodoRepository.WithTx(tx)
+	user, err := query.GetAccount(ctx, request.Username)
 	if err != nil {
 		panic(exception.NewNotFoundError(err.Error()))
 	}
@@ -82,15 +74,13 @@ func (service *TodoServiceImpl) GetAllTodo(ctx context.Context, request model.Ge
 	err := service.Validate.Struct(request)
 	helper.IfError(err)
 
-	var todos []repository.GetAllTodosRow
-	err = helper.ExecTx(ctx, service.DB, func(q *repository.Queries) error {
-		userid := request.Userid
-		todos, err = q.GetAllTodos(ctx, userid)
-		if err != nil {
-			return err
-		}
-		return nil
-	})
+	userid := request.Userid
+	tx, err := service.DB.Begin()
+	defer helper.CommitOrRollback(tx)
+	helper.IfError(err)
+
+	query := service.TodoRepository.WithTx(tx)
+	todos, err := query.GetAllTodos(ctx, userid)
 	if err != nil {
 		panic(exception.NewNotFoundError(err.Error()))
 	}
@@ -107,136 +97,125 @@ func (service *TodoServiceImpl) AddTodo(ctx context.Context, request model.AddNe
 	err := service.Validate.Struct(request)
 	helper.IfError(err)
 
-	var user repository.AddaNewTodoRow
-	err = helper.ExecTx(ctx, service.DB, func(q *repository.Queries) error {
-		arg := repository.AddaNewTodoParams{
-			Todo:      request.Todo,
-			Complated: request.Complated,
-			Userid:    request.Userid,
-		}
-		user, err = q.AddaNewTodo(ctx, arg)
-		if err != nil {
-			return err
-		}
-		return nil
-	})
+	arg := repository.AddaNewTodoParams{
+		Todo:      request.Todo,
+		Complated: request.Complated,
+		Userid:    request.Userid,
+	}
+	tx, err := service.DB.Begin()
+	defer helper.CommitOrRollback(tx)
+	helper.IfError(err)
+
+	query := service.TodoRepository.WithTx(tx)
+	todo, err := query.AddaNewTodo(ctx, arg)
 	if err != nil {
 		panic(exception.NewNotFoundError(err.Error()))
 	}
 
-	return user
+	return todo
 }
 
 func (service *TodoServiceImpl) GetTodo(ctx context.Context, request model.GetorDeleteTodoRequest) repository.GetSingleaTodosRow {
 	err := service.Validate.Struct(request)
 	helper.IfError(err)
 
-	var user repository.GetSingleaTodosRow
-	err = helper.ExecTx(ctx, service.DB, func(q *repository.Queries) error {
-		arg := repository.GetSingleaTodosParams{
-			Userid: request.Userid,
-			ID:     request.ID,
-		}
-		user, err = q.GetSingleaTodos(ctx, arg)
-		if err != nil {
-			return err
-		}
-		return nil
-	})
+	arg := repository.GetSingleaTodosParams{
+		Userid: request.Userid,
+		ID:     request.ID,
+	}
+	tx, err := service.DB.Begin()
+	defer helper.CommitOrRollback(tx)
+	helper.IfError(err)
+
+	query := service.TodoRepository.WithTx(tx)
+	todo, err := query.GetSingleaTodos(ctx, arg)
 	if err != nil {
 		panic(exception.NewNotFoundError(err.Error()))
 	}
 
-	return user
+	return todo
 }
 
 func (service *TodoServiceImpl) UpdateStatusTodo(ctx context.Context, request model.UpdateStatusTodoRequest) repository.UpdateStatusComplateRow {
 	err := service.Validate.Struct(request)
 	helper.IfError(err)
 
-	var user repository.UpdateStatusComplateRow
-	err = helper.ExecTx(ctx, service.DB, func(q *repository.Queries) error {
-		arg := repository.UpdateStatusComplateParams{
-			ID:        request.ID,
-			Complated: request.Complated,
-			Userid:    request.Userid,
-		}
-		user, err = q.UpdateStatusComplate(ctx, arg)
-		if err != nil {
-			return err
-		}
-		return nil
-	})
+	arg := repository.UpdateStatusComplateParams{
+		ID:        request.ID,
+		Complated: request.Complated,
+		Userid:    request.Userid,
+	}
+	tx, err := service.DB.Begin()
+	defer helper.CommitOrRollback(tx)
+	helper.IfError(err)
+
+	query := service.TodoRepository.WithTx(tx)
+	todo, err := query.UpdateStatusComplate(ctx, arg)
 	if err != nil {
 		panic(exception.NewNotFoundError(err.Error()))
 	}
-	return user
+
+	return todo
 }
 
 func (service *TodoServiceImpl) DeleteTodo(ctx context.Context, request model.GetorDeleteTodoRequest) repository.Todo {
 	err := service.Validate.Struct(request)
 	helper.IfError(err)
 
-	var user repository.Todo
-	err = helper.ExecTx(ctx, service.DB, func(q *repository.Queries) error {
-		arg := repository.DeleteaTodoParams{
-			ID:     request.ID,
-			Userid: request.Userid,
-		}
-		user, err = q.DeleteaTodo(ctx, arg)
-		if err != nil {
-			return err
-		}
-		return nil
-	})
+	arg := repository.DeleteaTodoParams{
+		ID:     request.ID,
+		Userid: request.Userid,
+	}
+	tx, err := service.DB.Begin()
+	defer helper.CommitOrRollback(tx)
+	helper.IfError(err)
+
+	query := service.TodoRepository.WithTx(tx)
+	todo, err := query.DeleteaTodo(ctx, arg)
 	if err != nil {
 		panic(exception.NewNotFoundError(err.Error()))
 	}
 
-	return user
+	return todo
 }
 
 func (service *TodoServiceImpl) GetRandomTodo(ctx context.Context, request model.GetAllTodoRequest) repository.GetRandomaTodoRow {
-	var user repository.GetRandomaTodoRow
-	err := helper.ExecTx(ctx, service.DB, func(q *repository.Queries) error {
-		var err error
-		user, err = q.GetRandomaTodo(ctx, request.Userid)
-		if err != nil {
-			return err
-		}
-		return nil
-	})
+
+	tx, err := service.DB.Begin()
+	defer helper.CommitOrRollback(tx)
+	helper.IfError(err)
+
+	query := service.TodoRepository.WithTx(tx)
+	todo, err := query.GetRandomaTodo(ctx, request.Userid)
 	if err != nil {
 		panic(exception.NewNotFoundError(err.Error()))
 	}
 
-	return user
+	return todo
 }
 
 func (service *TodoServiceImpl) GetTodoFilter(ctx context.Context, request model.GetTodoFilterRequest) model.GetTodoFilterResponse {
 	err := service.Validate.Struct(request)
 	helper.IfError(err)
 
-	var user []repository.GetSomeTodosRow
-	err = helper.ExecTx(ctx, service.DB, func(q *repository.Queries) error {
-		arg := repository.GetSomeTodosParams{
-			Userid: request.Userid,
-			Limit:  request.Limit,
-			Offset: request.Offset,
-		}
-		user, err = q.GetSomeTodos(ctx, arg)
-		if err != nil {
-			return err
-		}
-		return nil
-	})
+	arg := repository.GetSomeTodosParams{
+		Userid: request.Userid,
+		Limit:  request.Limit,
+		Offset: request.Offset,
+	}
+	tx, err := service.DB.Begin()
+	defer helper.CommitOrRollback(tx)
+	helper.IfError(err)
+
+	query := service.TodoRepository.WithTx(tx)
+	todos, err := query.GetSomeTodos(ctx, arg)
 	if err != nil {
 		panic(exception.NewNotFoundError(err.Error()))
 	}
 
 	result := model.GetTodoFilterResponse{
-		Todos: user,
-		Total: int32(len(user)),
+		Todos: todos,
+		Total: int32(len(todos)),
 		Skip:  request.Offset,
 		Limit: request.Limit,
 	}

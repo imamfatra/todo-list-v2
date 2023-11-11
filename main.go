@@ -6,19 +6,19 @@ import (
 	"todo-api/controller"
 	"todo-api/helper"
 	"todo-api/middleware"
+	"todo-api/repository"
 	"todo-api/service"
 
-	"github.com/go-playground/validator/v10"
+	"github.com/go-playground/validator"
 	_ "github.com/lib/pq"
 )
 
 func main() {
 	db := app.NewDB()
+	validate := validator.New()
 
-	var validate = validator.New()
-	serviceTodo := service.NewTodoService(db, validate)
+	serviceTodo := service.NewTodoService(&repository.Queries{}, validate, db)
 	controllerTodo := controller.NewTodoController(serviceTodo)
-	// var hendler http.Handler
 	hendler := app.NewRouter(controllerTodo)
 
 	server := http.Server{

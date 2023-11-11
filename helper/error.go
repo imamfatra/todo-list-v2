@@ -5,12 +5,3 @@ func IfError(err error) {
 		panic(err)
 	}
 }
-
-// var ErrValidate = errors.New("ErrorValidation")
-
-// func ErrValidation(err error) error {
-// 	if err != nil {
-// 		return ErrValidate
-// 	}
-// 	return nil
-// }
