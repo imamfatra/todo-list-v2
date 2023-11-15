@@ -9,7 +9,7 @@ import (
 	"todo-api/repository"
 	"todo-api/service"
 
-	"github.com/go-playground/validator"
+	"github.com/go-playground/validator/v10"
 	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/suite"
 )
@@ -86,10 +86,9 @@ func (suite *todoServiceSuite) createOneTodo() repository.AddaNewTodoRow {
 		Password: user.Password,
 	})
 
-	a := true
 	arg := model.AddNewTodoRequest{
 		Todo:      model.RandomString(100),
-		Complated: a,
+		Complated: false,
 		Userid:    account.Userid,
 	}
 
@@ -111,7 +110,7 @@ func (suite *todoServiceSuite) createManyTodos() model.AddNewTodoRequest {
 
 	arg := model.AddNewTodoRequest{
 		Todo:      model.RandomString(1443),
-		Complated: true,
+		Complated: false,
 		Userid:    account.Userid,
 	}
 
@@ -124,7 +123,7 @@ func (suite *todoServiceSuite) createManyTodos() model.AddNewTodoRequest {
 
 func (suite *todoServiceSuite) TestAddTodo() {
 	todo := suite.createOneTodo()
-	suite.Equal(todo.Complated, true)
+	suite.Equal(todo.Complated, false)
 	suite.NotZero(todo.ID)
 	suite.NotZero(todo.Userid)
 }
@@ -141,6 +140,79 @@ func (suite *todoServiceSuite) TestGetAllTodo_Positive() {
 	suite.Equal(todos.Total, int64(100))
 	suite.Equal(todo.Userid, arg.Userid)
 	suite.NotZero(todo.ID)
+}
+
+func (suite *todoServiceSuite) TestGetTodo_Positive() {
+	user := suite.createOneTodo()
+
+	arg := model.GetorDeleteTodoRequest{
+		Userid: user.Userid,
+		ID:     user.ID,
+	}
+	todo := suite.service.GetTodo(context.Background(), arg)
+	suite.Equal(todo.ID, user.ID)
+	suite.Equal(todo.Userid, user.Userid)
+	suite.Equal(todo.Todo, user.Todo)
+	suite.False(todo.Complated)
+}
+
+func (suite *todoServiceSuite) TestUpdateStatusTodo_Positive() {
+	user := suite.createOneTodo()
+
+	arg := model.UpdateStatusTodoRequest{
+		ID:        user.ID,
+		Complated: true,
+		Userid:    user.Userid,
+	}
+	todo := suite.service.UpdateStatusTodo(context.Background(), arg)
+	suite.Equal(todo.ID, user.ID)
+	suite.Equal(todo.Userid, user.Userid)
+	suite.Equal(todo.Todo, user.Todo)
+	suite.NotEqual(todo.Complated, user.Complated)
+}
+
+func (suite *todoServiceSuite) TestDeleteTodo_Positive() {
+	user := suite.createOneTodo()
+
+	arg := model.GetorDeleteTodoRequest{
+		Userid: user.Userid,
+		ID:     user.ID,
+	}
+	todo := suite.service.DeleteTodo(context.Background(), arg)
+	suite.Equal(todo.ID, user.ID)
+	suite.Equal(todo.Userid, user.Userid)
+	suite.Equal(todo.Todo, user.Todo)
+	suite.NotZero(todo.Deletedon)
+	suite.True(todo.Isdelete)
+}
+
+func (suite *todoServiceSuite) TestGetTodoRandom_Positive() {
+	users := suite.createManyTodos()
+
+	arg := model.GetAllTodoRequest{
+		Userid: users.Userid,
+	}
+	todo := suite.service.GetRandomTodo(context.Background(), arg)
+	suite.NotZero(todo.ID)
+	suite.False(todo.Complated)
+	suite.Equal(todo.Userid, users.Userid)
+}
+
+func (suite *todoServiceSuite) TestGetTodoFilter_Positive() {
+	users := suite.createManyTodos()
+
+	arg := model.GetTodoFilterRequest{
+		Userid: users.Userid,
+		Limit:  int32(20),
+		Offset: int32(10),
+	}
+	todos := suite.service.GetTodoFilter(context.Background(), arg)
+	suite.Equal(todos.Total, int32(20))
+	suite.Equal(todos.Limit, arg.Limit)
+	suite.Equal(todos.Skip, arg.Offset)
+	suite.Equal(todos.Todos[1].Userid, users.Userid)
+	suite.Equal(todos.Todos[0].ID, int32(11))
+
 }
 
 func TestTodoService(t *testing.T) {

@@ -3,7 +3,7 @@ package model
 type RegistrasiRequest struct {
 	Email    string `validate:"required,email" json:"email"`
 	Username string `validate:"required,min=6,max=125,alphanum" json:"username"`
-	Password string `validate:"required,min=6,max=125,alphanum" json:"password"`
+	Password string `validate:"required,min=6,max=125" json:"password"`
 }
 
 type LoginRequest struct {
@@ -17,7 +17,7 @@ type GetAllTodoRequest struct {
 
 type AddNewTodoRequest struct {
 	Todo      string `validate:"required" json:"todo"`
-	Complated bool   `validate:"required,bool" json:"complated"`
+	Complated bool   `validate:"omitempty,boolean" json:"complated"`
 	Userid    int32  `validate:"required,numeric" json:"userid"`
 }
 
@@ -28,7 +28,7 @@ type GetorDeleteTodoRequest struct {
 
 type UpdateStatusTodoRequest struct {
 	ID        int32 `validate:"required,numeric" json:"id"`
-	Complated bool  `validate:"boolean" json:"complated"`
+	Complated bool  `validate:"omitempty,boolean" json:"complated"`
 	Userid    int32 `validate:"required,numeric" json:"userid"`
 }
 
@@ -37,3 +37,5 @@ type GetTodoFilterRequest struct {
 	Limit  int32 `validate:"numeric" json:"limit"`
 	Offset int32 `validate:"numeric" json:"offset"`
 }
+
+var AddTodoBuffer AddNewTodoRequest

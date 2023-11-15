@@ -9,7 +9,7 @@ import (
 	"todo-api/repository"
 	"todo-api/service"
 
-	"github.com/go-playground/validator"
+	"github.com/go-playground/validator/v10"
 	_ "github.com/lib/pq"
 )
 

@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -25,8 +26,8 @@ func NewPasetoMaker(symmetrycKey string) (Maker, error) {
 	return key, nil
 }
 
-func (paseto *PasetoMaker) CreateToken(usernamse string, duration time.Duration) (string, error) {
-	payload, err := NewPayload(usernamse, duration)
+func (paseto *PasetoMaker) CreateToken(username string, userid int, duration time.Duration) (string, error) {
+	payload, err := NewPayload(username, userid, duration)
 	if err != nil {
 		return "", err
 	}
@@ -34,7 +35,7 @@ func (paseto *PasetoMaker) CreateToken(usernamse string, duration time.Duration)
 	return paseto.paseto.Encrypt(paseto.SymmetrycKey, payload, nil)
 }
 
-func (paseto *PasetoMaker) VarifyToken(token string) (*Payload, error) {
+func (paseto *PasetoMaker) VarifyToken(token string, userId int) (*Payload, error) {
 	var payload = &Payload{}
 
 	err := paseto.paseto.Decrypt(token, paseto.SymmetrycKey, payload, nil)
@@ -45,6 +46,10 @@ func (paseto *PasetoMaker) VarifyToken(token string) (*Payload, error) {
 	err = payload.IsValid()
 	if err != nil {
 		return nil, err
+	}
+	if payload.UserId != userId {
+		fmt.Println("user id in validation:", payload.UserId)
+		return nil, errors.New("Unauthorization")
 	}
 
 	return payload, nil

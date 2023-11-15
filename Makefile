@@ -24,5 +24,8 @@ migratedown:
 sqlc:
 	sqlc generate
 
+test:
+	go test -v -cover -short ./repository/repository_test.go
+	go test -v -cover -short ./service/service_test.go
 
 .PHONY: network postgres createdb dropdb createmigrate migrateup migratedown

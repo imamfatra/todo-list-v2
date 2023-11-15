@@ -27,7 +27,7 @@ Content-Type: application/json
 
 {
     "username": "andini",
-    "password": "Atlantik"
+    "password": "Atlanti322k"
 }
 
 ### Login validation failed (Not found)
@@ -44,19 +44,19 @@ Content-Type: application/json
 POST http://localhost:3000/api/todo
 Accept: application/json
 Content-Type: application/json
-authorization: v2.local.hgR2n61ejzQ1e-_1bT8L-XM_tENC_z2rIhwrkTQ36bMrU5ePNy0SExLpznnAji2nANFy-8ncLfyLJIVQ3C5EwUEn8wnwBr31iLVYaDwX64kQoVxkM6xguTZMH6IHL484kV8Y1h6fzNOBZDDNFydH7tqUJY2WUV6W6OmSNWZzUw3PSZWBibQJ02i_8D42m6kGpA-NDUlsiKt365ImG5bpNRtdG4RwEECmppYwqDZj9ZzlTZ8dIiKdAROQ6tcGaYT5kkQkybKtvLsVbYFXjl8.bnVsbA
+authorization: v2.local.7rYnAF5wkeBEGo4RaJB62kWxm-MWzgHKrwUaQXnXd5QADcCHf8eskbyA2qoZJSHAc2l6X9KXSuc0mTz2wFEemgQXx9t-wSJX-y4zhQM7dZg4DSa7PUeerfy8OQ4NqBMiPAE-wD4ZRSk0Sb5HNRl1s3oFke7I8T3vPRgvPdf9p4u5Iaafukik6lgMSFGZ5EuhD0dJk4AvXS2236GUoLRZzO_VuXuKlP17wJ2OSKJPxgPyOgF4W3O9LsQgBiZJxcIZa7t9yBiWVud_CzQkSHQEFZK_vfifi7UTVQ.bnVsbA
 
 {
     "todo": "pray to god in night",
-    "complated": true,
-    "userid": 54
+    "complated": false,
+    "userid": 1
 }
 
 
 ### Get All todo
-GET http://localhost:3000/api/todos/54
+GET http://localhost:3000/api/todos/1
 Accept: application/json
-authorization: v2.local.hgR2n61ejzQ1e-_1bT8L-XM_tENC_z2rIhwrkTQ36bMrU5ePNy0SExLpznnAji2nANFy-8ncLfyLJIVQ3C5EwUEn8wnwBr31iLVYaDwX64kQoVxkM6xguTZMH6IHL484kV8Y1h6fzNOBZDDNFydH7tqUJY2WUV6W6OmSNWZzUw3PSZWBibQJ02i_8D42m6kGpA-NDUlsiKt365ImG5bpNRtdG4RwEECmppYwqDZj9ZzlTZ8dIiKdAROQ6tcGaYT5kkQkybKtvLsVbYFXjl8.bnVsbA
+authorization: v2.local.GDt-7ZGe78rCroGhXN3Tkk_cRdHmBWrKulPY4L8sYX3TAzSton1RFQ428y7M_wW-wLIWbgjXDBXjOhVR0v5eBEL6i8Vkfs7L8UwA_HpxSOSDBGDlrFa0wmtbcDfuTAFZkXkZfpLwe1djdHN8wFJUOcsB0uKZYJSq0VbmH1P85eVlHtvpbJW3bv_E0pY0P5gq9JeWrX4Q52kAWzATyPARS5b5USWTQyP64ECVy-BktpS_Y7CWo4Li8vqi11FSuocBUGCpDCpsGOl1Ueju_znXI_UZJE5DZH_kEOWIzbo.bnVsbA
 
 ### Get random todo
 GET http://localhost:3000/api/todo/random/54

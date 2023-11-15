@@ -8,7 +8,7 @@ import (
 	"todo-api/model"
 	"todo-api/repository"
 
-	"github.com/go-playground/validator"
+	"github.com/go-playground/validator/v10"
 )
 
 type TodoServiceImpl struct {
@@ -64,7 +64,7 @@ func (service *TodoServiceImpl) Login(ctx context.Context, request model.LoginRe
 	query := service.TodoRepository.WithTx(tx)
 	user, err := query.GetAccount(ctx, request.Username)
 	if err != nil {
-		panic(exception.NewNotFoundError(err.Error()))
+		panic(exception.NewUnauthorizedErr(err.Error()))
 	}
 
 	return user

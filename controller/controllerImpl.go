@@ -5,7 +5,6 @@ import (
 	"todo-api/helper"
 	"todo-api/middleware"
 	"todo-api/model"
-	"todo-api/repository"
 	"todo-api/service"
 
 	"strconv"
@@ -30,7 +29,7 @@ func (controller *TodoControllerImpl) Registrasi(writer http.ResponseWriter, req
 	hassPassword, err := model.HashPassword(registrasiRequest.Password)
 	helper.IfError(err)
 
-	arg := repository.CreateAccountParams{
+	arg := model.RegistrasiRequest{
 		Email:    registrasiRequest.Email,
 		Username: registrasiRequest.Username,
 		Password: hassPassword,
@@ -52,6 +51,8 @@ func (controller *TodoControllerImpl) Login(writer http.ResponseWriter, request 
 	loginResponse := controller.TodoService.Login(request.Context(), loginRequest)
 	err := model.CheckPassword(loginRequest.Password, loginResponse.Password)
 	if err != nil {
+		writer.Header().Add("Content-Type", "application/json")
+		writer.WriteHeader(http.StatusUnauthorized)
 		webResponse := model.WebResponse{
 			Code:   http.StatusUnauthorized,
 			Status: "UNAUTHORIZED",
@@ -65,7 +66,7 @@ func (controller *TodoControllerImpl) Login(writer http.ResponseWriter, request 
 	helper.IfError(err)
 
 	maker, err := middleware.NewPasetoMaker(config.TokenSymmetricKey)
-	token, err := maker.CreateToken(loginRequest.Username, config.AccessTokenDuration)
+	token, err := maker.CreateToken(loginRequest.Username, int(loginResponse.Userid), config.AccessTokenDuration)
 
 	webResponse := model.WebResponse{
 		Code:   http.StatusOK,
@@ -99,15 +100,14 @@ func (controller *TodoControllerImpl) GetAllTodo(writer http.ResponseWriter, req
 }
 
 func (controller *TodoControllerImpl) AddTodo(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-	var todoRequest model.AddNewTodoRequest
-	helper.ReadFromRequestBody(request, &todoRequest)
-
+	todoRequest := model.AddTodoBuffer
 	todoResponse := controller.TodoService.AddTodo(request.Context(), todoRequest)
 	webResponse := model.WebResponse{
 		Code:   http.StatusOK,
 		Status: "SUCCESS",
 		Data:   todoResponse,
 	}
+
 	helper.WriteToResponse(writer, webResponse)
 }
 

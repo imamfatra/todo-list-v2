@@ -270,7 +270,7 @@ func (suite *todoRepositorySuite) TestUpdateStatusTodo_Positive() {
 
 	arg := repository.UpdateStatusComplateParams{
 		ID:        id,
-		Complated: true,
+		Complated: false,
 		Userid:    userId,
 	}
 
@@ -278,7 +278,7 @@ func (suite *todoRepositorySuite) TestUpdateStatusTodo_Positive() {
 	suite.NoError(err)
 	suite.NotEmpty(todo)
 
-	suite.True(todo.Complated)
+	suite.False(todo.Complated)
 	suite.Equal(todo.ID, id)
 	suite.Equal(todo.Userid, userId)
 }
