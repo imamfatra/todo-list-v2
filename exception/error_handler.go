@@ -46,7 +46,7 @@ func notFoundError(writer http.ResponseWriter, request *http.Request, err interf
 
 	patternDuplicate := "duplicate key value violates unique constraint"
 	regex := regexp.MustCompile(patternDuplicate)
-	errDuplicate := "pq: duplicate key value violates unique constraint \"users_email_key\""
+	errDuplicate := exception.Error
 
 	if ok && regex.MatchString(errDuplicate) {
 		writer.Header().Add("Content-Type", "application/json")

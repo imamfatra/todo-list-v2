@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"errors"
 	"fmt"
 	"time"
 
@@ -47,9 +46,9 @@ func (paseto *PasetoMaker) VarifyToken(token string, userId int) (*Payload, erro
 	if err != nil {
 		return nil, err
 	}
+
 	if payload.UserId != userId {
-		fmt.Println("user id in validation:", payload.UserId)
-		return nil, errors.New("Unauthorization")
+		return nil, ErrNotFoundUserId
 	}
 
 	return payload, nil

@@ -17,7 +17,7 @@ type RegistrasiResponse struct {
 
 type GetAllTodosResponse struct {
 	Todos []repository.GetAllTodosRow `json:"todos"`
-	Total int64                       `json:"Total"`
+	Total int64                       `json:"total"`
 }
 
 type GetTodosGFilterResponse struct {

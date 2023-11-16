@@ -33,6 +33,7 @@ func NewPayload(username string, userId int, duration time.Duration) (*Payload, 
 
 var ErrExpiredToken = errors.New("Token Has Expired")
 var ErrInvalidToken = errors.New("Token is Invalid")
+var ErrNotFoundUserId = errors.New("UserId Not Found")
 
 func (p *Payload) IsValid() error {
 	if time.Now().After(p.ExpiredAt) {

@@ -395,6 +395,7 @@ func (suite *todoControllerSuite) TestAddTodo_Authorization_Negative() {
 }
 
 func (suite *todoControllerSuite) TestGetAllTodo_Positive() {
+	suite.registrasiTodo()
 	user := suite.addManyTodo()
 	router := suite.SetupTest()
 
@@ -410,7 +411,293 @@ func (suite *todoControllerSuite) TestGetAllTodo_Positive() {
 	body, _ := io.ReadAll(response.Body)
 	var responseBody map[string]interface{}
 	json.Unmarshal(body, &responseBody)
-	fmt.Println(responseBody)
+	suite.Equal(int(responseBody["code"].(float64)), 200)
+	suite.Equal(responseBody["status"].(string), "SUCCESS")
+	suite.Equal(int(responseBody["data"].(map[string]interface{})["total"].(float64)), 100)
+}
+
+func (suite *todoControllerSuite) TestGetAllTOdo_TokenWrong_Negative() {
+	user := suite.addManyTodo()
+	router := suite.SetupTest()
+
+	url := fmt.Sprintf("/api/todos/" + strconv.Itoa(int(user.Userid)))
+	request := httptest.NewRequest(http.MethodGet, url, nil)
+	request.Header.Set("authorization", user.Token+"1bc")
+
+	record := httptest.NewRecorder()
+	router.ServeHTTP(record, request)
+	response := record.Result()
+	suite.Equal(http.StatusUnauthorized, response.StatusCode)
+
+	body, _ := io.ReadAll(response.Body)
+	var responseBody map[string]interface{}
+	json.Unmarshal(body, &responseBody)
+	suite.Equal(int(responseBody["code"].(float64)), 401)
+	suite.Equal(responseBody["status"].(string), "UNAUTHORIZED")
+}
+
+func (suite *todoControllerSuite) TestGetAllTOdo_TokenWrongWithAnotherAccount_Negative() {
+	user := suite.addManyTodo()
+	router := suite.SetupTest()
+	user2 := suite.loginAccount()
+
+	url := fmt.Sprintf("/api/todos/" + strconv.Itoa(int(user.Userid)))
+	request := httptest.NewRequest(http.MethodGet, url, nil)
+	request.Header.Set("authorization", user2.Token)
+
+	record := httptest.NewRecorder()
+	router.ServeHTTP(record, request)
+	response := record.Result()
+	suite.Equal(http.StatusNotFound, response.StatusCode)
+
+	body, _ := io.ReadAll(response.Body)
+	var responseBody map[string]interface{}
+	json.Unmarshal(body, &responseBody)
+	suite.Equal(int(responseBody["code"].(float64)), 404)
+	suite.Equal(responseBody["status"].(string), "Page Not Found")
+}
+
+func (suite *todoControllerSuite) TestGetAllTOdo_WrongUserId_Negative() {
+	user := suite.addManyTodo()
+	router := suite.SetupTest()
+
+	url := fmt.Sprintf("/api/todos/" + "1000")
+	request := httptest.NewRequest(http.MethodGet, url, nil)
+	request.Header.Set("authorization", user.Token)
+
+	record := httptest.NewRecorder()
+	router.ServeHTTP(record, request)
+	response := record.Result()
+	suite.Equal(http.StatusNotFound, response.StatusCode)
+
+	body, _ := io.ReadAll(response.Body)
+	var responseBody map[string]interface{}
+	json.Unmarshal(body, &responseBody)
+	suite.Equal(int(responseBody["code"].(float64)), 404)
+	suite.Equal(responseBody["status"].(string), "Page Not Found")
+}
+
+func (suite *todoControllerSuite) TestGetTodoSingle_Positive() {
+	user := suite.addOneTodo()
+	router := suite.SetupTest()
+	userId := strconv.Itoa(int(user.Userid))
+
+	url := fmt.Sprintf("/api/todo?userId=%s&id=%s", userId, "1")
+	request := httptest.NewRequest(http.MethodGet, url, nil)
+	request.Header.Set("authorization", user.Token)
+
+	record := httptest.NewRecorder()
+	router.ServeHTTP(record, request)
+	response := record.Result()
+	suite.Equal(http.StatusOK, response.StatusCode)
+
+	body, _ := io.ReadAll(response.Body)
+	var responseBody map[string]interface{}
+	json.Unmarshal(body, &responseBody)
+	suite.Equal(int(responseBody["code"].(float64)), 200)
+	suite.Equal(responseBody["status"].(string), "SUCCESS")
+	suite.Equal(responseBody["data"].(map[string]interface{})["userid"].(float64), float64(user.Userid))
+	suite.Equal(responseBody["data"].(map[string]interface{})["id"].(float64), float64(1))
+}
+
+func (suite *todoControllerSuite) TestGetTodoSingle_WrongToken_Negative() {
+	user := suite.addOneTodo()
+	router := suite.SetupTest()
+	userId := strconv.Itoa(int(user.Userid))
+
+	url := fmt.Sprintf("/api/todo?userId=%s&id=%s", userId, "1")
+	request := httptest.NewRequest(http.MethodGet, url, nil)
+	request.Header.Set("authorization", user.Token+"abc")
+
+	record := httptest.NewRecorder()
+	router.ServeHTTP(record, request)
+	response := record.Result()
+	suite.Equal(http.StatusUnauthorized, response.StatusCode)
+
+	body, _ := io.ReadAll(response.Body)
+	var responseBody map[string]interface{}
+	json.Unmarshal(body, &responseBody)
+	suite.Equal(int(responseBody["code"].(float64)), 401)
+	suite.Equal(responseBody["status"].(string), "UNAUTHORIZED")
+}
+
+func (suite *todoControllerSuite) TestGetTodoSingle_WrongUserId_Negative() {
+	user := suite.addOneTodo()
+	router := suite.SetupTest()
+	userId := "100"
+
+	url := fmt.Sprintf("/api/todo?userId=%s&id=%s", userId, "1")
+	request := httptest.NewRequest(http.MethodGet, url, nil)
+	request.Header.Set("authorization", user.Token)
+
+	record := httptest.NewRecorder()
+	router.ServeHTTP(record, request)
+	response := record.Result()
+	suite.Equal(http.StatusNotFound, response.StatusCode)
+
+	body, _ := io.ReadAll(response.Body)
+	var responseBody map[string]interface{}
+	json.Unmarshal(body, &responseBody)
+	suite.Equal(int(responseBody["code"].(float64)), 404)
+	suite.Equal(responseBody["status"].(string), "Page Not Found")
+}
+
+func (suite *todoControllerSuite) TestGetTodoSingle_IdNotFound_Negative() {
+	user := suite.addOneTodo()
+	router := suite.SetupTest()
+	userId := strconv.Itoa(int(user.Userid))
+
+	url := fmt.Sprintf("/api/todo?userId=%s&id=%s", userId, "1000")
+	request := httptest.NewRequest(http.MethodGet, url, nil)
+	request.Header.Set("authorization", user.Token)
+
+	record := httptest.NewRecorder()
+	router.ServeHTTP(record, request)
+	response := record.Result()
+	suite.Equal(http.StatusNotFound, response.StatusCode)
+
+	body, _ := io.ReadAll(response.Body)
+	var responseBody map[string]interface{}
+	json.Unmarshal(body, &responseBody)
+	suite.Equal(int(responseBody["code"].(float64)), 404)
+	suite.Equal(responseBody["status"].(string), "REQUEST NOT FOUND")
+}
+
+func (suite *todoControllerSuite) TestGetTodoSingle_NilPointer_Negative() {
+	user := suite.addOneTodo()
+	router := suite.SetupTest()
+
+	url := fmt.Sprintf("/api/todo?userId=%s&id=%s", "", "")
+	request := httptest.NewRequest(http.MethodGet, url, nil)
+	request.Header.Set("authorization", user.Token)
+
+	record := httptest.NewRecorder()
+	router.ServeHTTP(record, request)
+	response := record.Result()
+	suite.Equal(http.StatusNotFound, response.StatusCode)
+
+	body, _ := io.ReadAll(response.Body)
+	var responseBody map[string]interface{}
+	json.Unmarshal(body, &responseBody)
+	suite.Equal(int(responseBody["code"].(float64)), 404)
+	suite.Equal(responseBody["status"].(string), "Page Not Found")
+}
+
+func (suite *todoControllerSuite) TestUpdateStatus_Positive() {
+	user := suite.addOneTodo()
+	router := suite.SetupTest()
+	userId := strconv.Itoa(int(user.Userid))
+	arg := model.UpdateStatusTodoRequest{
+		Complated: true,
+	}
+	requestBody, err := json.Marshal(arg)
+	helper.IfError(err)
+
+	url := fmt.Sprintf("/api/todo?userId=%s&id=%s", userId, "1")
+	request := httptest.NewRequest(http.MethodPut, url, bytes.NewBuffer(requestBody))
+	request.Header.Set("authorization", user.Token)
+
+	record := httptest.NewRecorder()
+	router.ServeHTTP(record, request)
+	response := record.Result()
+	suite.Equal(http.StatusOK, response.StatusCode)
+
+	body, _ := io.ReadAll(response.Body)
+	var responseBody map[string]interface{}
+	json.Unmarshal(body, &responseBody)
+	suite.Equal(int(responseBody["code"].(float64)), 200)
+	suite.Equal(responseBody["status"].(string), "SUCCESS")
+	suite.Equal(responseBody["data"].(map[string]interface{})["userid"].(float64), float64(user.Userid))
+	suite.Equal(responseBody["data"].(map[string]interface{})["id"].(float64), float64(1))
+}
+
+func (suite *todoControllerSuite) TestUpdateStatus_WrongToken_Negative() {
+	user := suite.addOneTodo()
+	router := suite.SetupTest()
+	userId := strconv.Itoa(int(user.Userid))
+	arg := model.UpdateStatusTodoRequest{
+		Complated: true,
+	}
+	requestBody, err := json.Marshal(arg)
+	helper.IfError(err)
+
+	url := fmt.Sprintf("/api/todo?userId=%s&id=%s", userId, "1")
+	request := httptest.NewRequest(http.MethodPut, url, bytes.NewBuffer(requestBody))
+	request.Header.Set("authorization", user.Token+"1")
+
+	record := httptest.NewRecorder()
+	router.ServeHTTP(record, request)
+	response := record.Result()
+	suite.Equal(http.StatusUnauthorized, response.StatusCode)
+
+	body, _ := io.ReadAll(response.Body)
+	var responseBody map[string]interface{}
+	json.Unmarshal(body, &responseBody)
+	suite.Equal(int(responseBody["code"].(float64)), 401)
+	suite.Equal(responseBody["status"].(string), "UNAUTHORIZED")
+}
+
+func (suite *todoControllerSuite) TestDeleteTodo_Positive() {
+	user := suite.addOneTodo()
+	router := suite.SetupTest()
+	userId := strconv.Itoa(int(user.Userid))
+
+	url := fmt.Sprintf("/api/todo?userId=%s&id=%s", userId, "1")
+	request := httptest.NewRequest(http.MethodDelete, url, nil)
+	request.Header.Set("authorization", user.Token)
+
+	record := httptest.NewRecorder()
+	router.ServeHTTP(record, request)
+	response := record.Result()
+	suite.Equal(http.StatusOK, response.StatusCode)
+
+	body, _ := io.ReadAll(response.Body)
+	var responseBody map[string]interface{}
+	json.Unmarshal(body, &responseBody)
+	suite.Equal(int(responseBody["code"].(float64)), 200)
+	suite.Equal(responseBody["status"].(string), "SUCCESS")
+}
+
+func (suite *todoControllerSuite) TestRandomTodo_Positive() {
+	user := suite.addManyTodo()
+	router := suite.SetupTest()
+	userId := strconv.Itoa(int(user.Userid))
+
+	url := fmt.Sprintf("/api/todo/random/" + userId)
+	request := httptest.NewRequest(http.MethodGet, url, nil)
+	request.Header.Set("authorization", user.Token)
+
+	record := httptest.NewRecorder()
+	router.ServeHTTP(record, request)
+	response := record.Result()
+	suite.Equal(http.StatusOK, response.StatusCode)
+
+	body, _ := io.ReadAll(response.Body)
+	var responseBody map[string]interface{}
+	json.Unmarshal(body, &responseBody)
+	suite.Equal(int(responseBody["code"].(float64)), 200)
+	suite.Equal(responseBody["status"].(string), "SUCCESS")
+}
+
+func (suite *todoControllerSuite) TestGetTodoFilter_Positive() {
+	user := suite.addManyTodo()
+	router := suite.SetupTest()
+	userId := strconv.Itoa(int(user.Userid))
+
+	url := fmt.Sprintf("/api/todos?userId=%s&limit=%s&offset=%s", userId, "25", "10")
+	request := httptest.NewRequest(http.MethodGet, url, nil)
+	request.Header.Set("authorization", user.Token)
+
+	record := httptest.NewRecorder()
+	router.ServeHTTP(record, request)
+	response := record.Result()
+	suite.Equal(http.StatusOK, response.StatusCode)
+
+	body, _ := io.ReadAll(response.Body)
+	var responseBody map[string]interface{}
+	json.Unmarshal(body, &responseBody)
+	suite.Equal(int(responseBody["code"].(float64)), 200)
+	suite.Equal(responseBody["status"].(string), "SUCCESS")
 }
 
 func TestTodoController(t *testing.T) {

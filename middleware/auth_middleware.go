@@ -6,10 +6,31 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"todo-api/exception"
 	"todo-api/helper"
 	"todo-api/model"
 )
+
+func responseNotFound(w http.ResponseWriter, err error) {
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(http.StatusNotFound)
+	webResponse := model.WebResponse{
+		Code:   http.StatusNotFound,
+		Status: "Page Not Found",
+		Data:   err,
+	}
+	helper.WriteToResponse(w, webResponse)
+}
+
+func responseUnathorize(w http.ResponseWriter, err error) {
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(http.StatusUnauthorized)
+	webResponse := model.WebResponse{
+		Code:   http.StatusUnauthorized,
+		Status: "UNAUTHORIZED",
+		Data:   err,
+	}
+	helper.WriteToResponse(w, webResponse)
+}
 
 func Auth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -20,14 +41,7 @@ func Auth(next http.Handler) http.Handler {
 
 		config, err := model.LoadConfig("./")
 		if err != nil {
-			w.Header().Add("Content-Type", "application/json")
-			w.WriteHeader(http.StatusUnauthorized)
-			webResponse := model.WebResponse{
-				Code:   http.StatusUnauthorized,
-				Status: "UNAUTHORIZED",
-				Data:   err,
-			}
-			helper.WriteToResponse(w, webResponse)
+			responseUnathorize(w, err)
 			return
 		}
 
@@ -60,17 +74,19 @@ func Auth(next http.Handler) http.Handler {
 		var userId int
 		if r.Method == http.MethodGet || r.Method == http.MethodDelete || r.Method == http.MethodPut {
 			var err error
-			if len(strings.Split(r.URL.Path, "/")) >= 3 {
+			if len(strings.Split(r.URL.Path, "/")) > 3 {
 				path := strings.Split(r.URL.Path, "/")
 				userId, err = strconv.Atoi(path[len(path)-1])
 				if err != nil {
-					panic(exception.NewNotFoundError(err.Error()))
+					responseNotFound(w, err)
+					return
 				}
 			} else {
 				userIdStr := r.URL.Query().Get("userId")
 				userId, err = strconv.Atoi(userIdStr)
 				if err != nil {
-					panic(exception.NewNotFoundError(err.Error()))
+					responseNotFound(w, err)
+					return
 				}
 			}
 
@@ -94,15 +110,14 @@ func Auth(next http.Handler) http.Handler {
 		}
 
 		_, err = maker.VarifyToken(tokenString, userId)
+		// fmt.Println(err)
+		if err == ErrNotFoundUserId {
+			responseNotFound(w, err)
+			return
+		}
+
 		if err != nil {
-			w.Header().Add("Content-Type", "application/json")
-			w.WriteHeader(http.StatusUnauthorized)
-			webResponse := model.WebResponse{
-				Code:   http.StatusUnauthorized,
-				Status: "UNAUTHORIZED",
-				Data:   err,
-			}
-			helper.WriteToResponse(w, webResponse)
+			responseUnathorize(w, err)
 			return
 		}
 

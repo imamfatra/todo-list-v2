@@ -27,5 +27,6 @@ sqlc:
 test:
 	go test -v -cover -short ./repository/repository_test.go
 	go test -v -cover -short ./service/service_test.go
+	go test -v -cover -short ./controller/controller_test.go
 
-.PHONY: network postgres createdb dropdb createmigrate migrateup migratedown
+.PHONY: network postgres createdb dropdb createmigrate migrateup migratedown test
