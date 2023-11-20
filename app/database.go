@@ -20,8 +20,10 @@ func NewDB() *sql.DB {
 
 	db.SetMaxIdleConns(10)
 	db.SetMaxOpenConns(100)
-	db.SetConnMaxIdleTime(5 * time.Minute)
+	db.SetConnMaxIdleTime(60 * time.Minute)
 	db.SetConnMaxLifetime(60 * time.Minute)
+
+	log.Println("Success connect to database")
 
 	return db
 }

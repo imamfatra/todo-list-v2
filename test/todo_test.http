@@ -1,5 +1,5 @@
 ### Registrasi success
-POST http://localhost:3000/api/user/registrasi
+POST http://0.0.0.0:3000/api/user/registrasi
 Accept: application/json
 Content-Type: application/json
 
@@ -10,7 +10,7 @@ Content-Type: application/json
 }
 
 ### Registrasi validation failed (Bad request)
-POST http://localhost:3000/api/user/registrasi
+POST http://0.0.0.0:3000/api/user/registrasi
 Accept: application/json
 Content-Type: application/json
 
@@ -41,7 +41,7 @@ Content-Type: application/json
 }
 
 ### add new todo
-POST http://localhost:3000/api/todo
+POST http://0.0.0.0:3000/api/todo
 Accept: application/json
 Content-Type: application/json
 authorization: v2.local.7rYnAF5wkeBEGo4RaJB62kWxm-MWzgHKrwUaQXnXd5QADcCHf8eskbyA2qoZJSHAc2l6X9KXSuc0mTz2wFEemgQXx9t-wSJX-y4zhQM7dZg4DSa7PUeerfy8OQ4NqBMiPAE-wD4ZRSk0Sb5HNRl1s3oFke7I8T3vPRgvPdf9p4u5Iaafukik6lgMSFGZ5EuhD0dJk4AvXS2236GUoLRZzO_VuXuKlP17wJ2OSKJPxgPyOgF4W3O9LsQgBiZJxcIZa7t9yBiWVud_CzQkSHQEFZK_vfifi7UTVQ.bnVsbA

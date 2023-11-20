@@ -4,28 +4,42 @@ services:
     build:
       context: .
       dockerfile: postgres.Dockerfile
+    container_name: pgtodo
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=todo_list
     ports:
       - "5432:5432"
-    container_name: postgres_todos
-    env_file:
-      - app.env
-    environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${DB}
-   
     volumes:
       - data-volume:/var/lib/postgresql/data
+    networks:
+      - todolist
   api:
     build:
       context: .
       dockerfile: Dockerfile
+    cap_add:
+      - SYS_ADMIN
     ports:
       - "3000:3000"
+    environment:
+      - DB_SOURCE=postgresql://root:secret@postgres:5432/todo_list?sslmode=disable
+    networks:
+      - todolist
     depends_on:
       - postgres
-    links:
-      - postgres
+    entrypoint:
+      [
+        "/app/wait-for.sh",
+        "postgres:5432",
+        "--",
+        "/app/start.sh"
+      ]
+    command: [ "/app/main" ]
 volumes:
   data-volume:
     driver: local
+networks:
+  todolist:
+    driver: bridge

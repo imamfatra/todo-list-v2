@@ -22,7 +22,7 @@ func main() {
 	hendler := app.NewRouter(controllerTodo)
 
 	server := http.Server{
-		Addr:    "localhost:3000",
+		Addr:    "0.0.0.0:3000",
 		Handler: middleware.Auth(hendler),
 	}
 	err := server.ListenAndServe()
